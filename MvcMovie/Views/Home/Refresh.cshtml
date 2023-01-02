@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Refresh";
+}
+
+@(Html.DevExtreme().Button()
+    .Text("Refresh Grid")
+    .OnClick("reloadData")
+)
+
+@(Html.DevExtreme().DataGrid<Movie>()
+    .ID("myDataGrid")
+    .DataSource(ds => ds.Mvc()
+        .Controller("MoviesDE")
+        .Key("Id")
+        .LoadAction("Get")
+    )
+)
+
+<script>
+    function reloadData() {
+        $("#myDataGrid").dxDataGrid("getDataSource").reload();
+    }
+</script>
