@@ -23,6 +23,16 @@ namespace MvcMovie.Controllers
             return View();
         }
 
+        public IActionResult MasterDetail()
+        {
+            return View();
+        }
+
+        public IActionResult Tree()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

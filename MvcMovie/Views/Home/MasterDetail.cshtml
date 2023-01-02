@@ -1,0 +1,34 @@
+﻿@{
+    ViewData["Title"] = "Master Detail";
+}
+
+@(Html.DevExtreme().DataGrid<Movie>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("MoviesDE")
+        .Key("Id")
+        .LoadAction("Get"))
+    .Columns(columns =>
+    {
+        columns.AddFor(m => m.Id);
+        columns.AddFor(m => m.Title);
+        columns.AddFor(m => m.ReleaseDate);
+        columns.AddFor(m => m.Genre);
+        columns.AddFor(m => m.Price);
+        columns.AddFor(m => m.Rating);
+    })
+    .FilterRow(fr => fr.Visible(true))
+    .RemoteOperations(true)
+    .Paging(p => p.PageSize(10))
+    .MasterDetail(md => md
+        .Enabled(true)
+        .Template(@<text>
+            @(Html.DevExtreme().DataGrid()
+                .DataSource(ds => ds.Mvc()
+                    .Controller("AdditionalDE")
+                    .LoadAction("GetById")
+                    .LoadParams(new { id = new JS("key") })
+                )
+            )
+        </text>)
+    )
+)
