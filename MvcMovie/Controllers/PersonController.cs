@@ -26,5 +26,16 @@ namespace MvcMovie.Controllers
             }
             return View(person);
         }
+
+        [HttpPost]
+        public IActionResult CheckEmailAddress(string email)
+        {
+            if (_context.Person.Any(p => p.Email == email))
+            {
+                return Json($"Email {email} is already registered.");
+            }
+
+            return Json(true);
+        }
     }
 }

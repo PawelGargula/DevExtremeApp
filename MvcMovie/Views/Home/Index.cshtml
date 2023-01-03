@@ -2,6 +2,10 @@
     ViewData["Title"] = "Home Page";
 }
 
+@{
+    bool hasPermision = true;
+}
+
 @using (Html.BeginForm("Create", "Person", FormMethod.Post)) 
 {
     @(Html.DevExtreme().Form<Person>()
@@ -9,6 +13,7 @@
         {
             items.AddGroup()
                 .Caption("Person data")
+                .ColCount(2)
                 .Items(groupItems =>
                 {
                     groupItems.AddSimpleFor(m => m.FirstName);
@@ -23,13 +28,13 @@
                                 .LoadAction("Get")
                                 .Key("Id")
                             )
-                            .DisplayExpr("Name")
+                            .Disabled(!hasPermision)
+                            .DisplayExpr(new JS("dictionaryExpr"))
                             .DropDownOptions(o => o.Height(350))
                             .Placeholder("Wybierz pozycję słownikową...")
                             .OnValueChanged("treelistBox_valueChanged")
                             .ShowClearButton(true)
                             .ValueExpr("Id")
-                            .Width(300)
                         );
                 });
             items.AddButton()
@@ -39,6 +44,7 @@
                     .UseSubmitBehavior(true)
                 );
         })
+        .OnContentReady("focusFirstNameInput")
     )
 }
 
@@ -81,6 +87,7 @@
                             component.option("value", keys);
                             component.option("inputAttr", { title: selectedItems.selectedRowsData[0].Name });
                             component.close();
+                            component.focus();
                         }
                     }
                 </text>)
@@ -94,5 +101,14 @@
             var treeList = $treeList.dxTreeList("instance");
             treeList.selectRows(e.value, false);
         }
+    }
+
+    function focusFirstNameInput() {
+        const firstNameInput = document.querySelector('[name="FirstName"]');
+        firstNameInput.focus();     
+    }
+
+    function dictionaryExpr(dictionary) {
+        return `${dictionary.Code} - ${dictionary.Name}`;
     }
 </script>

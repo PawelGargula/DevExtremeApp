@@ -12,10 +12,10 @@ namespace MvcMovie.Models
         [StringLength(int.MaxValue, MinimumLength = 2, ErrorMessage = "First name must have at least 2 characters")]
         public string? FirstName { get; set; }
 
-        //[Range(typeof(DateTime), "1/1/1901", "1/1/2016")]
+        [Range(typeof(DateTime), "1/1/1901", "1/1/2016")]
         public DateTime BirthDate { get; set; }
 
-        //[Remote("CheckEmailAddress", "Validation")]
+        [Remote("CheckEmailAddress", "Person", HttpMethod = "POST")]
         public string? Email { get; set; }
         
         public int Localization { get; set; }
