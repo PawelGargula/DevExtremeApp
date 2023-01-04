@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "View1";
+}
+
+<h2>View1</h2>
+
+@(Html.DevExtreme().TreeList<Dictionary>()
+    .DataSource(ds => ds.Mvc()
+        .Controller("DictionaryDE")
+        .LoadAction("Get")
+        .Key("Id")
+    )
+    //.RootValue(0)
+    //.ParentIdExpr("TODO")
+    //.RemoteOperations(o => o.Filtering(true).Grouping(true).Sorting(true))
+    .Columns(columns => {
+
+        columns.AddFor(m => m.Id);
+
+        columns.AddFor(m => m.Code);
+
+        columns.AddFor(m => m.Name);
+
+        columns.AddFor(m => m.ParentId);
+    })
+)

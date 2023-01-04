@@ -19,5 +19,6 @@ namespace MvcMovie.Models
         public string? Email { get; set; }
         
         public int Localization { get; set; }
+        public int Organization { get; set; }
     }
 }
