@@ -22,7 +22,6 @@
                     groupItems.AddSimpleFor(m => m.Localization)
                         .Editor(e => e
                             .DropDownBox()
-                            .ID("one")
                             .ContentTemplate(@<text> 
                                 @*Set same unique parameter as on OnValueChanged > treelistBox_valueChanged function*@
                                 @await Html.PartialAsync("_TreeList", "TreeListLOK")
@@ -33,6 +32,7 @@
                                     treelistBox_valueChanged(e, "TreeListLOK");
                                 }
                             </text>)
+                            .ElementAttr(new JS("{ class: 'dropdown-box-with-treelist' }"))
                             .DataSource(d => d.Mvc()
                                 .Controller("DictionaryDE")
                                 .LoadAction("Get")
@@ -49,7 +49,6 @@
                     groupItems.AddSimpleFor(m => m.Organization)
                         .Editor(e => e
                             .DropDownBox()
-                            .ID("two")
                             .ContentTemplate(@<text> 
                                 @*Set same unique parameter as on OnValueChanged > treelistBox_valueChanged function*@
                                 @await Html.PartialAsync("_TreeList", "TreeListORG")
@@ -60,6 +59,7 @@
                                     treelistBox_valueChanged(e, "TreeListORG");
                                 }
                             </text>)
+                            .ElementAttr(new JS("{ class: 'dropdown-box-with-treelist' }"))
                             .DataSource(d => d.Mvc()
                                 .Controller("DictionaryDE")
                                 .LoadAction("Get")
