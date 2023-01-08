@@ -1,0 +1,101 @@
+﻿@using DevExtreme.AspNet.Mvc.Builders;
+@using DevExtreme.AspNet.Mvc.Factories;
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@functions {
+    public WidgetBuilder RenderDropdownBoxWithTreeList(FormItemEditorFactory editor, string treeListId)
+    {
+        return editor.DropDownBox()
+                    .ContentTemplate(@<text>
+        @await Html.PartialAsync("_GlossaryTreeList", treeListId)
+    </text>)
+                .OnValueChanged(@<text>
+        function(e) {
+        dropDownBoxWithTreeList_valueChanged(e, '@treeListId');
+        }
+    </text>)
+                .DataSource(d => d.Mvc()
+                    .Controller("DictionaryDE")
+                    .LoadAction("Get")
+                    .Key("Id")
+                )
+                .DisplayExpr(new JS("dictionaryExpr"))
+                .DropDownOptions(o => o.Height("auto"))
+                .Placeholder("Wybierz pozycję słownikową...")
+                .ShowClearButton(true)
+                .ValueExpr("Id");
+    }
+}
+
+<style>
+    /* Glossary treelist rows' hover state */
+    .glossary-treelist tr.dx-row.dx-data-row.dx-column-lines.dx-state-hover {
+        cursor: pointer;
+    }
+
+    /* Change glossary treelist's search panel width */
+    .glossary-treelist .dx-toolbar-after {
+        width: 100%;
+        padding-left: 0;
+    }
+
+    .glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-texteditor-empty.dx-widget,
+    .glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-widget {
+        margin-left: 0;
+        /* If we want to change width of treelist's search panel to 100%, we have to use !important,
+                   because this controll always sets some width (always in px) on HTML element's 'style' attribute and there is no other way to overwrite inline styles */
+        width: 100% !important;
+    }
+</style>
+
+@using (Html.BeginForm("Create", "Person", FormMethod.Post))
+{
+    @(Html.DevExtreme().Form<Person>()
+            .Items(items =>
+            {
+                items.AddGroup()
+                    .Caption("Person data")
+                    .ColCount(2)
+                    .Items(groupItems =>
+                    {
+                        groupItems.AddSimpleFor(m => m.FirstName);
+                        groupItems.AddSimpleFor(m => m.BirthDate);
+                        groupItems.AddSimpleFor(m => m.Email);
+                        groupItems.AddSimpleFor(m => m.Localization)
+                            .Editor(e => RenderDropdownBoxWithTreeList(e, "TreeListLOK"));
+                        groupItems.AddSimpleFor(m => m.Organization)
+                            .Editor(e => RenderDropdownBoxWithTreeList(e, "TreeListORG"));
+                    });
+                items.AddButton()
+                    .ButtonOptions(bo => bo
+                        .Text("Create person")
+                        .Type(ButtonType.Success)
+                        .UseSubmitBehavior(true)
+                    );
+            })
+            .OnContentReady("focusFirstNameInput")
+        )
+}
+
+<script>
+    function dropDownBoxWithTreeList_valueChanged(e, treeListId) {
+        const $treeList = $(`#${treeListId}`);
+        if ($treeList.length) {
+            const treeList = $treeList.dxTreeList("instance");
+            e.component._labelContainerElement.title = "";
+            treeList.selectRows(e.value, false);
+        }
+    }
+
+    function focusFirstNameInput() {
+        const firstNameInput = document.querySelector('[name="FirstName"]');
+        firstNameInput.focus();
+    }
+
+    function dictionaryExpr(dictionary) {
+        return `${dictionary.Code} - ${dictionary.Name}`;
+    }
+</script>
