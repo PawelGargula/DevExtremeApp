@@ -161,7 +161,18 @@ Html.DevExtreme().DataGrid<DictionaryDefinition>()
     .ID("dictionary-definition-grid")
     .Columns(columns =>
     {
-        columns.AddFor(m => m.Code).Visible(false);
+        columns.AddFor(m => m.Code)
+            .Visible(false);
+        columns.AddFor(m => m.IsSystemic)
+            .Visible(false)
+            .GroupIndex(0)
+            .GroupCellTemplate(@<text>
+                <% if(value) %>
+                    <span>Systemowe</span>
+                <% else %>
+                    <span>Własne</span>
+            </text>)
+            .SortOrder(SortOrder.Desc);
         columns.AddFor(m => m.Name);
         columns.Add()
             .Type(GridCommandColumnType.Buttons)
@@ -171,10 +182,10 @@ Html.DevExtreme().DataGrid<DictionaryDefinition>()
                     .Hint("Zobacz pozycje słownikowe")
                     .Visible(true)
                     .Template(@<text>
-                        <a href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>">View</a>
+                        <a class="dx-link dx-icon-bulletlist" href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>"></a>
                     </text>);
-                b.Add().Name(GridColumnButtonName.Edit).Disabled(new JS("isDisabled"));
-                b.Add().Name(GridColumnButtonName.Delete).Disabled(new JS("isDisabled"));
+                b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
+                b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
             });
     })
     .DataSource(ds => ds.Mvc()
@@ -233,8 +244,12 @@ Html.DevExtreme().DataGrid<DictionaryDefinition>()
 )
 
 <script>
-    function isDisabled(item) {
+    function isEditButtonVisible(item) {
         const hasPermision = '@hasPermision' === 'True' ? true : false;
         return item.row.data.IsSystemic || !hasPermision;
+    }
+    
+    function isDeleteButtonVisible(item) {
+        return item.row.data.IsSystemic ? false : true;
     }
 </script>
