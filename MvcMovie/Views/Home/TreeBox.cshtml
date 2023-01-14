@@ -2,30 +2,12 @@
 @using DevExtreme.AspNet.Mvc.Factories;
 @using MvcMovie.DXCustomControls;
 
+<link rel="stylesheet" href="~/css/dropdownBoxWithTreeList.css">
+<script defer src="~/js/dropdownBoxWithTreeList.js"></script>
+
 @{
     ViewData["Title"] = "Home Page";
 }
-
-<style>
-    /* Glossary treelist rows' hover state */
-    .glossary-treelist tr.dx-row.dx-data-row.dx-column-lines.dx-state-hover {
-        cursor: pointer;
-    }
-
-    /* Change glossary treelist's search panel width */
-    .glossary-treelist .dx-toolbar-after {
-        width: 100%;
-        padding-left: 0;
-    }
-
-    .glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-texteditor-empty.dx-widget,
-    .glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-widget {
-        margin-left: 0;
-        /* If we want to change width of treelist's search panel to 100%, we have to use !important,
-                   because this controll always sets some width (always in px) on HTML element's 'style' attribute and there is no other way to overwrite inline styles */
-        width: 100% !important;
-    }
-</style>
 
 @using (Html.BeginForm("Create", "Person", FormMethod.Post))
 {
@@ -57,86 +39,6 @@
 }
 
 <script>
-    function renderTreeList(e, treeListid) {
-        const $treeList = $('<div>').dxTreeList({
-            columns: [
-                {
-                    dataField: 'Code',
-                    visible: false
-                },
-                {
-                    dataField: 'Name',
-                    cellTemplate(container, options) {
-                        const displayValue = `${options.data.Code} - ${options.value}`;
-                        const arr = [2, 3, 4, 5, 6, 11];
-                        if (arr.includes(options.data.Id)) {
-                            container.append($('<span>', { 
-                                text: displayValue 
-                            }));
-                        } else {
-                            container.append($('<span>', { 
-                                style: 'color: #EBEBE4;', 
-                                title: 'Zablokowana pozycja', 
-                                text: displayValue 
-                            }));
-                        }
-                    }
-                }
-            ],
-            dataSource: e.component.getDataSource(),
-            elementAttr: {
-                class: 'glossary-treelist',
-                id: treeListid
-            },
-            height: '100%',
-            hoverStateEnabled: true,
-            keyExpr: 'Id',
-            noDataText: 'Brak słowników',
-            parentIdExpr: 'ParentId',
-            scrolling: {
-                mode: 'virtual',
-                renderAsync: true
-            },
-            searchPanel: {
-                placeholder: 'Szukaj...',
-                visible: true
-            },
-            showColumnHeaders: false,
-            selection: {
-                mode: 'single'
-            },
-            selectedRowKeys: e.component.option('value') ? [component.option('value')] : [],
-            onSelectionChanged(selectedItems) {
-                const arr = [2, 3, 4, 5, 6, 11];
-                const keys = selectedItems.selectedRowKeys;
-                const data = selectedItems.selectedRowsData[0];
-                if (!data) return;
-                if(arr.includes(keys[0])) {
-                    e.component.option('value', keys);
-                    e.component.option('inputAttr', { title: selectedItems.selectedRowsData[0].Name });
-                    e.component.close();
-                    e.component.focus();
-                }
-            },
-            wordWrapEnabled: true
-        });
-
-        return $treeList;
-    }
-
-    function dropDownBoxWithTreeList_valueChanged(e, treeListId) {
-        const $treeList = $(`#${treeListId}`);
-        if ($treeList.length) {
-            const treeList = $treeList.dxTreeList("instance");
-            e.component._labelContainerElement.title = "";
-            treeList.selectRows(e.value, false);
-        }
-    }
-
-    function dictionaryExpr(dictionary) {
-        return `${dictionary.Code} - ${dictionary.Name}`;
-    }
-
     function focusFirstNameInput() {
         const firstNameInput = document.querySelector('[name="FirstName"]');
         firstNameInput.focus();

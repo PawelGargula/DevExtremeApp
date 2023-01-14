@@ -1,0 +1,18 @@
+﻿/* Glossary treelist rows' hover state */
+.glossary-treelist tr.dx-row.dx-data-row.dx-column-lines.dx-state-hover {
+    cursor: pointer;
+}
+
+/* Change glossary treelist's search panel width */
+.glossary-treelist .dx-toolbar-after {
+    width: 100%;
+    padding-left: 0;
+}
+
+.glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-texteditor-empty.dx-widget,
+.glossary-treelist .dx-treelist-search-panel.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-outlined.dx-searchbox.dx-show-clear-button.dx-widget {
+    margin-left: 0;
+    /* If we want to change width of treelist's search panel to 100%, we have to use !important,
+                   because this controll always sets some width (always in px) on HTML element's 'style' attribute and there is no other way to overwrite inline styles */
+    width: 100% !important;
+}
