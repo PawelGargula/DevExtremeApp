@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@{
+    bool hasPermision = false;
+}
+
+<style>
+    .dictionary-definition-view .dx-widget {
+        font-size: 16px;
+    }
+
+    /* Dictionary definition grid */
+    #dictionary-definition-grid .dx-toolbar-after {
+        display: flex;
+        gap: 20px;
+        padding: 0;
+        width: 100%;
+    }
+
+        #dictionary-definition-grid .dx-toolbar-after > div:first-child {
+            flex-grow: 1;
+        }
+
+    #dictionary-definition-grid .dx-datagrid-search-panel {
+        width: 100% !important;
+        margin: 0;
+    }
+
+    #dictionary-definition-grid tr.dx-state-hover {
+        /*background-color: #e6fffe;*/
+    }
+
+    #dictionary-definition-grid .dx-link-edit {
+        color: rgba(255, 193, 7, .7);
+    }
+
+        #dictionary-definition-grid .dx-link-edit:hover {
+            color: rgba(255, 193, 7, 1);
+        }
+
+    #dictionary-definition-grid .dx-link-delete {
+        color: rgba(220, 53, 69, .7);
+    }
+
+        #dictionary-definition-grid .dx-link-delete:hover {
+            color: rgba(220, 53, 69, 1);
+        }
+
+    #dictionary-definition-grid .dx-icon-bulletlist {
+        color: rgba(51, 122, 183, .7);
+    }
+
+        #dictionary-definition-grid .dx-icon-bulletlist:hover {
+            color: rgba(51, 122, 183, 1);
+        }
+</style>
+
+<h1>Dictionaries</h1>
+
+<div class="dictionary-definition-view">
+    @(Html.DevExtreme().DataGrid<DictionaryDefinition>()
+            .ID("dictionary-definition-grid")
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.Code)
+            .Visible(false);
+                columns.AddFor(m => m.IsSystemic)
+            .Visible(false)
+            .GroupIndex(0)
+            .GroupCellTemplate(@<text>
+                <% if(value) %>
+                <span>Systemowe</span>
+                <% else %>
+                <span>Własne</span>
+            </text>)
+            .SortOrder(SortOrder.Desc);
+                columns.AddFor(m => m.Name);
+                columns.Add()
+            .Type(GridCommandColumnType.Buttons)
+            .Buttons(b =>
+            {
+                b.Add()
+            .Hint("Zobacz pozycje słownikowe")
+            .Visible(true)
+            .Template(@<text>
+                <a class="dx-link dx-icon-bulletlist" href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>"></a>
+            </text>);
+                b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
+                b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
+            });
+            })
+        .DataSource(ds => ds.Mvc()
+        .Controller("DictionaryDefinitions")
+        .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+        .Key("Id")
+        )
+        .Editing(e => e.Mode(GridEditMode.Popup)
+        .AllowUpdating(true)
+        .AllowAdding(true)
+        .AllowDeleting(true)
+        .Form(f => f.ColCount(3).Items(items =>
+        {
+            items.AddSimpleFor(m => m.Code);
+            items.AddSimpleFor(m => m.Name).ColSpan(2);
+        }))
+        .Popup(p => p
+        .Title("Akcja")
+        .ShowTitle(true)
+        .Width("70vw")
+        .Height(250)
+        )
+        .Texts(t =>
+        {
+            t.AddRow("Dodaj nowy");
+            t.CancelRowChanges("Anuluj");
+            t.ConfirmDeleteMessage("Czy na pewno chcesz usunąć słownik?");
+            t.SaveRowChanges("Zapisz");
+            t.DeleteRow("Usuń słownik");
+            t.EditRow("Edytuj słownik");
+        })
+        .UseIcons(true)
+        )
+        @*.FocusedRowEnabled(true)*@
+        .HoverStateEnabled(true)
+        .Toolbar(tb =>
+        {
+            tb.Items(i =>
+            {
+                i.Add().Name(DataGridToolbarItem.SearchPanel);
+                i.Add().Name(DataGridToolbarItem.AddRowButton).ShowText(ToolbarItemShowTextMode.Always).CssClass("add-new-button");
+            });
+        })
+        .Paging(p => p.Enabled(false))
+        .SearchPanel(sp =>
+        {
+            sp.Visible(true);
+            sp.Placeholder("Szukaj słownika...");
+        })
+        .ShowColumnHeaders(false)
+        .ShowRowLines(true)
+        .WordWrapEnabled(true)
+        )
+</div>
+
+<script>
+    function isEditButtonVisible(item) {
+        const hasPermision = '@hasPermision' === 'True' ? true : false;
+        return item.row.data.IsSystemic || !hasPermision;
+    }
+
+    function isDeleteButtonVisible(item) {
+        return item.row.data.IsSystemic ? false : true;
+    }
+</script>
