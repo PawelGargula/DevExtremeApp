@@ -1,33 +1,9 @@
 ﻿@using DevExtreme.AspNet.Mvc.Builders;
 @using DevExtreme.AspNet.Mvc.Factories;
+@using MvcMovie.DXCustomControls;
 
 @{
     ViewData["Title"] = "Home Page";
-}
-
-@functions {
-    public WidgetBuilder RenderDropdownBoxWithTreeList(FormItemEditorFactory editor, string treeListId)
-    {
-        return editor.DropDownBox()
-                    .ContentTemplate(@<text>
-        @await Html.PartialAsync("_GlossaryTreeList", treeListId)
-    </text>)
-                .OnValueChanged(@<text>
-        function(e) {
-        dropDownBoxWithTreeList_valueChanged(e, '@treeListId');
-        }
-    </text>)
-                .DataSource(d => d.Mvc()
-                    .Controller("DictionaryDE")
-                    .LoadAction("Get")
-                    .Key("Id")
-                )
-                .DisplayExpr(new JS("dictionaryExpr"))
-                .DropDownOptions(o => o.Height("auto"))
-                .Placeholder("Wybierz pozycję słownikową...")
-                .ShowClearButton(true)
-                .ValueExpr("Id");
-    }
 }
 
 <style>
@@ -65,9 +41,9 @@
                         groupItems.AddSimpleFor(m => m.BirthDate);
                         groupItems.AddSimpleFor(m => m.Email);
                         groupItems.AddSimpleFor(m => m.Localization)
-                            .Editor(e => RenderDropdownBoxWithTreeList(e, "TreeListLOK"));
+                            .Editor(e => DropDownBoxWithTreeList.Render(e));
                         groupItems.AddSimpleFor(m => m.Organization)
-                            .Editor(e => RenderDropdownBoxWithTreeList(e, "TreeListORG"));
+                            .Editor(e => DropDownBoxWithTreeList.Render(e));
                     });
                 items.AddButton()
                     .ButtonOptions(bo => bo
@@ -81,6 +57,73 @@
 }
 
 <script>
+    function renderTreeList(e, treeListid) {
+        const $treeList = $('<div>').dxTreeList({
+            columns: [
+                {
+                    dataField: 'Code',
+                    visible: false
+                },
+                {
+                    dataField: 'Name',
+                    cellTemplate(container, options) {
+                        const displayValue = `${options.data.Code} - ${options.value}`;
+                        const arr = [2, 3, 4, 5, 6, 11];
+                        if (arr.includes(options.data.Id)) {
+                            container.append($('<span>', { 
+                                text: displayValue 
+                            }));
+                        } else {
+                            container.append($('<span>', { 
+                                style: 'color: #EBEBE4;', 
+                                title: 'Zablokowana pozycja', 
+                                text: displayValue 
+                            }));
+                        }
+                    }
+                }
+            ],
+            dataSource: e.component.getDataSource(),
+            elementAttr: {
+                class: 'glossary-treelist',
+                id: treeListid
+            },
+            height: '100%',
+            hoverStateEnabled: true,
+            keyExpr: 'Id',
+            noDataText: 'Brak słowników',
+            parentIdExpr: 'ParentId',
+            scrolling: {
+                mode: 'virtual',
+                renderAsync: true
+            },
+            searchPanel: {
+                placeholder: 'Szukaj...',
+                visible: true
+            },
+            showColumnHeaders: false,
+            selection: {
+                mode: 'single'
+            },
+            selectedRowKeys: e.component.option('value') ? [component.option('value')] : [],
+            onSelectionChanged(selectedItems) {
+                const arr = [2, 3, 4, 5, 6, 11];
+                const keys = selectedItems.selectedRowKeys;
+                const data = selectedItems.selectedRowsData[0];
+                if (!data) return;
+                if(arr.includes(keys[0])) {
+                    e.component.option('value', keys);
+                    e.component.option('inputAttr', { title: selectedItems.selectedRowsData[0].Name });
+                    e.component.close();
+                    e.component.focus();
+                }
+            },
+            wordWrapEnabled: true
+        });
+
+        return $treeList;
+    }
+
     function dropDownBoxWithTreeList_valueChanged(e, treeListId) {
         const $treeList = $(`#${treeListId}`);
         if ($treeList.length) {
@@ -90,12 +133,12 @@
         }
     }
 
+    function dictionaryExpr(dictionary) {
+        return `${dictionary.Code} - ${dictionary.Name}`;
+    }
+
     function focusFirstNameInput() {
         const firstNameInput = document.querySelector('[name="FirstName"]');
         firstNameInput.focus();
-    }
-
-    function dictionaryExpr(dictionary) {
-        return `${dictionary.Code} - ${dictionary.Name}`;
     }
 </script>
