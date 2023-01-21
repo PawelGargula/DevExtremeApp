@@ -6,60 +6,8 @@
     bool hasPermision = false;
 }
 
-<style>
-    /* View */
-    .dictionary-definition-view .dx-widget {
-        font-size: 16px;
-    }
-
-    /* Toolbar */
-    #dictionary-definition-grid .dx-toolbar-after {
-        display: flex;
-        gap: 20px;
-        padding: 0;
-        width: 100%;
-    }
-
-    /* Search panel */
-    #dictionary-definition-grid .dx-toolbar-after > div:first-child {
-        flex-grow: 1;
-    }
-
-    #dictionary-definition-grid .dx-datagrid-search-panel {
-        width: 100% !important;
-        margin: 0;
-    }
-
-    /* Hover row state */
-    #dictionary-definition-grid tr.dx-state-hover {
-        /*background-color: #e6fffe;*/
-    }
-
-    /* Icons */
-    #dictionary-definition-grid .dx-link-edit {
-        color: rgba(255, 193, 7, .7);
-    }
-
-    #dictionary-definition-grid .dx-link-edit:hover {
-        color: rgba(255, 193, 7, 1);
-    }
-
-    #dictionary-definition-grid .dx-link-delete {
-        color: rgba(220, 53, 69, .7);
-    }
-
-    #dictionary-definition-grid .dx-link-delete:hover {
-        color: rgba(220, 53, 69, 1);
-    }
-
-    #dictionary-definition-grid .dx-icon-bulletlist {
-        color: rgba(51, 122, 183, .7);
-    }
-
-    #dictionary-definition-grid .dx-icon-bulletlist:hover {
-        color: rgba(51, 122, 183, 1);
-    }
-</style>
+<link rel="stylesheet" href="~/css/dictionaries.css" />
+<script defer src="~/js/dictionaries.js"></script>
 
 <h1>Dictionaries</h1>
 
@@ -89,7 +37,11 @@
                         .Hint("Zobacz pozycje słownikowe")
                         .Visible(true)
                         .Template(@<text>
-                            <a class="dx-link dx-icon-bulletlist" href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>"></a>
+                            <a 
+                                class="dx-link dx-icon-bulletlist custom-dx-button" 
+                                data-id="<%- data.Id %>" 
+                                href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>">
+                            </a>
                         </text>);
                     b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
                     b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
@@ -132,6 +84,9 @@
         )
         .FocusStateEnabled(true)
         .HoverStateEnabled(true)
+        .OnRowInserted("onRowInserted")
+        .OnRowUpdated("onRowUpdated")
+        .OnRowRemoved("onRowRemoved")
         .Paging(p => p.Enabled(false))
         .SearchPanel(sp =>
         {
@@ -144,26 +99,14 @@
         {
             tb.Items(i =>
             {
-                i.Add().Name(DataGridToolbarItem.SearchPanel);
-                i.Add().Name(DataGridToolbarItem.AddRowButton).ShowText(ToolbarItemShowTextMode.Always).CssClass("add-new-button");
+                i.Add()
+                    .Name(DataGridToolbarItem.SearchPanel);
+                i.Add()
+                    .CssClass("add-new-button")
+                    .Name(DataGridToolbarItem.AddRowButton)
+                    .ShowText(ToolbarItemShowTextMode.Always);
             });
         })
         .WordWrapEnabled(true)
-        )
+    )
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const searachPanel = document.querySelector(".dx-datagrid-search-panel input");
-        searachPanel.focus();
-    });
-
-    function isEditButtonVisible(item) {
-        const hasPermision = '@hasPermision' === 'True' ? true : false;
-        return item.row.data.IsSystemic || !hasPermision;
-    }
-
-    function isDeleteButtonVisible(item) {
-        return item.row.data.IsSystemic ? false : true;
-    }
-</script>
