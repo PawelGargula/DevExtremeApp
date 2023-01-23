@@ -1,4 +1,9 @@
-﻿/* View */
+﻿/* Remove scroll while searching for dictionary */
+main {
+    overflow: hidden;
+}
+
+/* View */
 .dictionary-definition-view .dx-widget {
     font-size: 16px;
 }
@@ -54,4 +59,10 @@
 #dictionary-definition-grid .custom-dx-button:focus {
     outline: #5c95c5 solid 2px;
     outline-offset: 2px;
-} 
+}
+
+#dictionary-definition-grid .dx-datagrid-rowsview .dx-row.dx-group-row:not(.dx-row-focused) {
+    background-color: #f6fbff;
+    color: black;
+    font-weight: 500;
+}
