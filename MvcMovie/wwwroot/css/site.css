@@ -40,3 +40,8 @@ main {
 .row {
     margin-right: 0;
 }
+
+.active {
+    color: black;
+    font-weight: bold;
+}
