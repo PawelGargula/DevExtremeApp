@@ -1,4 +1,5 @@
-﻿function renderTreeList(e, treeListid) {
+﻿function renderTreeList(e, treeListid, avaliableItemsJSON) {
+    const avaliableItemsArr = JSON.parse(avaliableItemsJSON);
     const $treeList = $('<div>').dxTreeList({
         columns: [
             {
@@ -9,10 +10,9 @@
                 dataField: 'Name',
                 cellTemplate(container, options) {
                     const displayValue = `${options.data.Code} - ${options.value}`;
-                    const arr = [2, 3, 4, 5, 6, 11];
                     const tableRow = container[0].parentElement.parentElement;
                     tableRow.dataset.id = options.data.Id;
-                    if (arr.includes(options.data.Id)) {
+                    if (isAvaliable(avaliableItemsArr, options.data.Id)) {
                         container.append($('<span>', {
                             text: displayValue
                         }));
@@ -50,11 +50,10 @@
         },
         selectedRowKeys: e.component.option('value') ? [component.option('value')] : [],
         onSelectionChanged(selectedItems) {
-            const arr = [2, 3, 4, 5, 6, 11];
             const keys = selectedItems.selectedRowKeys;
             const data = selectedItems.selectedRowsData[0];
             if (!data) return;
-            if (arr.includes(keys[0])) {
+            if (isAvaliable(avaliableItemsArr, keys[0])) {
                 e.component.option('value', keys);
                 e.component.option('inputAttr', { title: data.Name });
                 e.component.close();
@@ -85,6 +84,10 @@
     });
 
     return $treeList;
+}
+
+function isAvaliable(avaliableItems, id) {
+    return avaliableItems ? avaliableItems.includes(id) : true; 
 }
 
 function dropDownBoxWithTreeList_valueChanged(e, treeListId) {
