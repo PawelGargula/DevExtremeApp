@@ -11,18 +11,20 @@ namespace MvcMovie.DXCustomControls
         public static WidgetBuilder Render(
             FormItemEditorFactory editor, 
             List<int>? avaliableItems = null, 
-            string onValueChanged = ""
+            string onValueChanged = "",
+            bool selectLeavesOnly = false
         )
         {
             var avaliableItemsJSON = JsonConvert.SerializeObject(avaliableItems);
             string treeListId = Guid.NewGuid().ToString();
-            
+            var selectLeavesOnlyJSON = JsonConvert.SerializeObject(selectLeavesOnly);
+
             onValueChanged = onValueChanged == "" 
                 ? $"(e) => {{ dropDownBoxWithTreeList_valueChanged(e, '{treeListId}'); }}"
                 : $"(e) => {{ dropDownBoxWithTreeList_valueChanged(e, '{treeListId}'); {onValueChanged} }}";
 
             return editor.DropDownBox()
-                    .ContentTemplate(new JS($"(e) => renderTreeList(e, '{treeListId}', '{avaliableItemsJSON}')"))
+                    .ContentTemplate(new JS($"(e) => renderTreeList(e, '{treeListId}', '{avaliableItemsJSON}', '{selectLeavesOnlyJSON}')"))
                     .OnValueChanged(onValueChanged)
                     .DataSource(d => d.Mvc()
                         .Controller("DictionaryDE")

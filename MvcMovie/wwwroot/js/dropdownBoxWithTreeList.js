@@ -1,5 +1,8 @@
-﻿function renderTreeList(e, treeListid, avaliableItemsJSON) {
+﻿function renderTreeList(e, treeListid, avaliableItemsJSON, selectLeavesOnlyJSON) {
     const avaliableItemsArr = JSON.parse(avaliableItemsJSON);
+    const selectLeavesOnlyBool = JSON.parse(selectLeavesOnlyJSON);
+    const canSelectTr = (isTrExpandable) => selectLeavesOnlyBool ? !isTrExpandable : true;
+
     const $treeList = $('<div>').dxTreeList({
         columns: [
             {
@@ -52,12 +55,28 @@
         onSelectionChanged(selectedItems) {
             const keys = selectedItems.selectedRowKeys;
             const data = selectedItems.selectedRowsData[0];
+            const expandableTr = document.querySelector(`tr[data-id="${keys[0]}"][aria-expanded]`);
+            const isTrExpandable = Boolean(expandableTr);
             if (!data) return;
-            if (isAvaliable(avaliableItemsArr, keys[0])) {
+            if (isAvaliable(avaliableItemsArr, keys[0]) && canSelectTr(isTrExpandable)) {
                 e.component.option('value', keys);
                 e.component.option('inputAttr', { title: data.Name });
                 e.component.close();
                 e.component.focus();
+            } else if(!canSelectTr(isTrExpandable)) {
+                DevExpress.ui.notify(
+                    {
+                        message: 'Nie można wybrać pozycji, która nie jest na najniższym szczeblu drzewa',
+                        width: 'fit-content',
+                        position: {
+                            my: 'bottom',
+                            at: 'bottom',
+                            of: `#${treeListid}`
+                        }
+                    },
+                    'warning',
+                    2000
+                );
             } else {
                 DevExpress.ui.notify(
                     {
@@ -72,12 +91,6 @@
                     'warning',
                     1000
                 );
-
-                const element = selectedItems.element[0];
-                const currentSelectedRowKey = selectedItems.currentSelectedRowKeys[0];
-                const currentSelectedRow = element.querySelector(`tr[data-id="${currentSelectedRowKey}"]`);
-                currentSelectedRow.classList.remove('dx-selection');
-                currentSelectedRow.ariaSelected = 'false';
             }
         },
         wordWrapEnabled: true
