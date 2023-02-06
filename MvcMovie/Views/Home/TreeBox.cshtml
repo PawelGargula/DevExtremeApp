@@ -23,7 +23,7 @@
                         groupItems.AddSimpleFor(m => m.Localization)
                             .Editor(e => DropDownBoxWithTreeList.Render(e, new List<int> { 1, 2, 3, 4, 6, 7 }));
                         groupItems.AddSimpleFor(m => m.Organization)
-                            .Editor(e => DropDownBoxWithTreeList.Render(e));
+                                        .Editor(e => DropDownBoxWithTreeList.Render(e, onValueChanged: "customValueChanged(e);"));
                     });
                 items.AddButton()
                     .ButtonOptions(bo => bo

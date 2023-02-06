@@ -102,3 +102,7 @@ function dropDownBoxWithTreeList_valueChanged(e, treeListId) {
 function dictionaryExpr(dictionary) {
     return `${dictionary.Code} - ${dictionary.Name}`;
 }
+
+function customValueChanged(e) {
+    console.log(`Custom value changed, current value is ${e.value}`);
+}
