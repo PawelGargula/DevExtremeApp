@@ -57,13 +57,23 @@
             const data = selectedItems.selectedRowsData[0];
             const expandableTr = document.querySelector(`tr[data-id="${keys[0]}"][aria-expanded]`);
             const isTrExpandable = Boolean(expandableTr);
+            const componentValue = e.component.option('value') !== null ? e.component.option('value')[0] : null;
+            const setValueFromComponent = () => {
+                const $treeList = $(`#${treeListid}`);
+                if ($treeList.length) {
+                    const treeList = $treeList.dxTreeList("instance");
+                    treeList.selectRows(componentValue, false);
+                }
+            };
             if (!data) return;
-            if (isAvaliable(avaliableItemsArr, keys[0]) && canSelectTr(isTrExpandable)) {
+            if (isAvaliable(avaliableItemsArr, keys[0])
+                && componentValue !== keys[0]
+                && canSelectTr(isTrExpandable)) {
                 e.component.option('value', keys);
                 e.component.option('inputAttr', { title: data.Name });
                 e.component.close();
                 e.component.focus();
-            } else if(!canSelectTr(isTrExpandable)) {
+            } else if (!canSelectTr(isTrExpandable)) {
                 DevExpress.ui.notify(
                     {
                         message: 'Nie można wybrać pozycji, która nie jest na najniższym szczeblu drzewa',
@@ -77,6 +87,7 @@
                     'warning',
                     2000
                 );
+                setValueFromComponent();
             } else {
                 DevExpress.ui.notify(
                     {
@@ -91,6 +102,7 @@
                     'warning',
                     1000
                 );
+                setValueFromComponent();
             }
         },
         wordWrapEnabled: true
