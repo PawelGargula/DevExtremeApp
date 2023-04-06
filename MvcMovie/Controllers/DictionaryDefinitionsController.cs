@@ -74,11 +74,17 @@ namespace MvcMovie.Controllers
         }
 
         [HttpDelete]
-        public async Task Delete(int key) {
+        public async Task<IActionResult> Delete(int key) {
             var model = await _context.DictionaryDefinition.FirstOrDefaultAsync(item => item.Id == key);
+
+            if (key == 18)
+            {
+                return StatusCode(409, "Nie można usunąć słownika");
+            }
 
             _context.DictionaryDefinition.Remove(model);
             await _context.SaveChangesAsync();
+            return Ok();
         }
 
 

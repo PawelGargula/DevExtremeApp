@@ -1,5 +1,9 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿let gridInstance, editing;
+
+document.addEventListener("DOMContentLoaded", () => {
     focusSearchPanel();
+    gridInstance = $("#dictionary-definition-grid").dxDataGrid("instance");
+    editing = gridInstance.option('editing');
 });
 
 function focusSearchPanel() {
@@ -29,4 +33,31 @@ function onRowUpdated() {
 
 function onRowRemoved() {
     focusSearchPanel();
+}
+
+function onInitNewRow(e) {
+    editing.popup.title = "Dodanie słownika";
+}
+
+function onEditingStart(e) {
+    console.log(e)
+    editing.popup.title = "Edycja słownika";
+}
+
+function onDisposing(e) {
+    console.log(e);
+}
+
+function customizeItem(item) {
+    //console.log(item);
+    //console.log(editing);
+
+    const editRowKey = editing.editRowKey;
+    const rowIndex = gridInstance.getRowIndexByKey(editRowKey);
+
+    // RowIndex === 0 oznacza, że dodajemy nowy słownik
+
+    if (item.dataField === 'Code' && gridInstance.cellValue(rowIndex, "Name") === 'Lokalizacja') {
+        item.visible = false;
+    }
 }

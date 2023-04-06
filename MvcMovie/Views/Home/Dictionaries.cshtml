@@ -28,21 +28,19 @@
                     <span>Własne</span>
                 </text>)
                 .SortOrder(SortOrder.Desc);
-            columns.AddFor(m => m.Name);
+            columns.AddFor(m => m.Name).CellTemplate(@<text>
+                    <a
+                        href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>"
+                        class="link-to-dictionary"
+                        title="Zobacz pozycje słownikowe"
+                    >
+                        <span class="dx-icon-bulletlist"></span><span><%- value %></span>
+                    </a>
+            </text>);
             columns.Add()
                 .Type(GridCommandColumnType.Buttons)
                 .Buttons(b =>
                 {
-                    b.Add()
-                        .Hint("Zobacz pozycje słownikowe")
-                        .Visible(true)
-                        .Template(@<text>
-                            <a 
-                                class="dx-link dx-icon-bulletlist custom-dx-button" 
-                                data-id="<%- data.Id %>" 
-                                href="<%- window.location.origin %>/Movies/Edit/<%- data.Id %>">
-                            </a>
-                        </text>);
                     b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
                     b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
                 });
@@ -60,7 +58,7 @@
             .AllowUpdating(true)
             .AllowAdding(true)
             .AllowDeleting(true)
-            .Form(f => f.ColCount(3).Items(items =>
+            .Form(f => f.ColCount(3).CustomizeItem("customizeItem").Items(items =>
             {
                 items.AddSimpleFor(m => m.Code);
                 items.AddSimpleFor(m => m.Name).ColSpan(2);
@@ -69,7 +67,7 @@
                 .Title("Dane słownika")
                 .ShowTitle(true)
                 .Width("70vw")
-                .Height(250))
+            )
             .Texts(t =>
             {
                 t.AddRow("Dodaj nowy");
@@ -84,6 +82,9 @@
         )
         .FocusStateEnabled(true)
         .HoverStateEnabled(true)
+        .OnDisposing("onDisposing")
+        .OnEditingStart("onEditingStart")
+        .OnInitNewRow("onInitNewRow")
         .OnRowInserted("onRowInserted")
         .OnRowUpdated("onRowUpdated")
         .OnRowRemoved("onRowRemoved")
