@@ -61,3 +61,50 @@ function customizeItem(item) {
         item.visible = false;
     }
 }
+
+const getPrefixActiveDX = () => $("#prefix-active").dxCheckBox("instance");
+const getPrefixValueDX = () => $("#prefix-value").dxRadioGroup("instance");
+const getPostfixActiveDX = () => $("#postfix-active").dxCheckBox("instance");
+const getPostfixValueDX = () => $("#postfix-value").dxRadioGroup("instance");
+
+function prefixActiveChanged(e) {
+    getPrefixValueDX().option("disabled", !e.value);
+    regeneratePreview();
+}
+
+function postfixActiveChanged(e) {
+    getPostfixValueDX().option("disabled", !e.value);
+    regeneratePreview();
+}
+
+function regeneratePreview(e) {
+    class Format {
+        constructor(active, value) {
+            this.active = active;
+            this.value = value;
+        }
+    }
+
+    const prefixActiveDX = getPrefixActiveDX();
+    const prefixValueDX = getPrefixValueDX();
+    const postfixActiveDX = getPostfixActiveDX();
+    const postfixValueDX = getPostfixValueDX();
+
+    const prefix = new Format(
+        prefixActiveDX.option("value"),
+        prefixValueDX.option("dataSource").store._array.find(
+            x => x.value === prefixValueDX.option("value")
+        ).text
+    );
+
+    const postfix = new Format(
+        postfixActiveDX.option("value"),
+        postfixValueDX.option("dataSource").store._array.find(
+            x => x.value === postfixValueDX.option("value")
+        ).text
+    );
+
+    const preview = $("#preview").dxTextBox("instance");
+
+    preview.option("value", `${prefix.active ? prefix.value : ""}-${postfix.active ? postfix.value : ""}`);
+}

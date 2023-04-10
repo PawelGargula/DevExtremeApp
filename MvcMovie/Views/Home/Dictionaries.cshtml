@@ -36,7 +36,7 @@
                     >
                         <span class="dx-icon-bulletlist"></span><span><%- value %></span>
                     </a>
-            </text>);
+                </text>);
             columns.Add()
                 .Type(GridCommandColumnType.Buttons)
                 .Buttons(b =>
@@ -62,7 +62,60 @@
             {
                 items.AddSimpleFor(m => m.Code);
                 items.AddSimpleFor(m => m.Name).ColSpan(2);
-            }))
+
+                items.AddGroup()
+                    .Caption("Format wyświetlania")
+                    .Items(groupItems =>
+                    {
+                        
+                        groupItems.AddSimple().Editor(e => e.CheckBox()
+                            .ID("prefix-active")
+                            .OnValueChanged("prefixActiveChanged")
+                            .Value(false)
+                        ).Label(l => l.Text("Prefix"));
+                        groupItems.AddSimple().Editor(e => e.RadioGroup()
+                            .DataSource(new[]
+                            {
+                                new { text = "Kod", value = "K"},
+                                new { text = "Nazwa", value = "N"},
+                                new { text = "Kod-Nazwa", value = "KN"}
+                            })
+                            .DisplayExpr("text")
+                            .ID("prefix-value")
+                            .Layout(Orientation.Horizontal)
+                            .OnValueChanged("regeneratePreview")
+                            .Value("K")
+                            .ValueExpr("value")
+                        );
+
+                        groupItems.AddSimple()
+                        .Editor(e => e.CheckBox()
+                            .ID("postfix-active")
+                            .OnValueChanged("postfixActiveChanged")
+                            .Value(false)
+                        )
+                        .Label(l => l.Text("Postfix"));
+                        groupItems.AddSimple().Editor(e => e.RadioGroup()
+                            .DataSource(new[]
+                            {
+                                new { text = "Kod", value = "K"},
+                                new { text = "Nazwa", value = "N"},
+                                new { text = "Kod-Nazwa", value = "KN"}
+                            })
+                            .DisplayExpr("text")
+                            .ID("postfix-value")
+                            .Layout(Orientation.Horizontal)
+                            .OnValueChanged("regeneratePreview")
+                            .Value("K")
+                            .ValueExpr("value")
+                        );
+
+                        groupItems.AddSimple()
+                            .Editor(e => e.TextBox().ID("preview").ReadOnly(true))
+                            .Label(l => l.Text("Podgląd"));
+                });
+                
+                }))
             .Popup(p => p
                 .Title("Dane słownika")
                 .ShowTitle(true)
