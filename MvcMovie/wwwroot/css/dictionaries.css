@@ -85,3 +85,7 @@ main {
 #dictionary-definition-grid td > a.link-to-dictionary:focus {
     border: 1px solid black;
 }
+
+.hidden-input {
+    display: none !important;
+}

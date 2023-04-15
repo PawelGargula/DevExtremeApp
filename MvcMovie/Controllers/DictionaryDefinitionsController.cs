@@ -121,5 +121,16 @@ namespace MvcMovie.Controllers
 
             return String.Join(" ", messages);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> IsCodeUnique(int id, string code)
+        {
+            if (_context.DictionaryDefinition.Any(p => p.Code == code && p.Id != id))
+            {
+                return Ok(false);
+            }
+
+            return Ok(true);
+        }
     }
 }

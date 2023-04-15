@@ -16,6 +16,8 @@
         .ID("dictionary-definition-grid")
         .Columns(columns =>
         {
+            columns.AddFor(m => m.Id)
+                .Visible(false);
             columns.AddFor(m => m.Code)
                 .Visible(false);
             columns.AddFor(m => m.IsSystemic)
@@ -27,6 +29,7 @@
                     <% else %>
                     <span>Własne</span>
                 </text>)
+
                 .SortOrder(SortOrder.Desc);
             columns.AddFor(m => m.Name).CellTemplate(@<text>
                     <a
@@ -36,15 +39,16 @@
                     >
                         <span class="dx-icon-bulletlist"></span><span><%- value %></span>
                     </a>
-                </text>);
+            </text>);
+
             columns.Add()
                 .Type(GridCommandColumnType.Buttons)
                 .Buttons(b =>
                 {
-                    b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
-                    b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
-                });
-        })
+                        b.Add().Name(GridColumnButtonName.Edit).Visible(new JS("isEditButtonVisible"));
+                        b.Add().Name(GridColumnButtonName.Delete).Visible(new JS("isDeleteButtonVisible"));
+                    });
+                    })
         .DataSource(ds => ds.Mvc()
             .Controller("DictionaryDefinitions")
             .LoadAction("Get")
@@ -58,12 +62,19 @@
             .AllowUpdating(true)
             .AllowAdding(true)
             .AllowDeleting(true)
-            .Form(f => f.ColCount(3).CustomizeItem("customizeItem").Items(items =>
+            .Form(f => f.ColCount(3).Items(items =>
             {
-                items.AddSimpleFor(m => m.Code);
+                items.AddSimpleFor(m => m.Code).ColSpan(1).ValidationRules(vr =>
+                {
+                    vr.AddRequired().Message("Kod jest wymagany");
+                    vr.AddAsync().ValidationCallback("isCodeUnique").Message("Kod jest już wykorzystywany");
+                });
+
                 items.AddSimpleFor(m => m.Name).ColSpan(2);
 
-                items.AddGroup()
+            items.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().ID("id")).CssClass("hidden-input");
+
+            @* items.AddGroup()
                     .Caption("Format wyświetlania")
                     .Items(groupItems =>
                     {
@@ -110,10 +121,10 @@
                             .ValueExpr("value")
                         );
 
-                        groupItems.AddSimple()
+                        groupItems.AddSimple().ValidationRules(vr => vr.AddRequired().Message("Aktywuj przynajmniej jedną z opcji: Prefix, Ścieżka, Postfix"))
                             .Editor(e => e.TextBox().ID("preview").ReadOnly(true))
                             .Label(l => l.Text("Podgląd"));
-                });
+    });*@
                 
                 }))
             .Popup(p => p
