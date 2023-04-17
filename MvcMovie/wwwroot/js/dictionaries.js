@@ -54,6 +54,16 @@ async function isCodeUnique(params) {
     return jsonData;
 }
 
+function onEditorPreparing(e) {
+    if (e.dataField === 'Name' && e.parentType == 'dataRow') {
+        const defaultValueChangedHandler = e.editorOptions.onValueChanged;
+        e.editorOptions.onValueChanged = function (args) {
+            console.log(e);
+            defaultValueChangedHandler(args);
+        }
+    }
+}
+
 //function customizeItem(item) {
 //    //console.log(item);
 //    //console.log(editing);

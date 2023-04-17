@@ -72,61 +72,8 @@
 
                 items.AddSimpleFor(m => m.Name).ColSpan(2);
 
-            items.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().ID("id")).CssClass("hidden-input");
-
-            @* items.AddGroup()
-                    .Caption("Format wyświetlania")
-                    .Items(groupItems =>
-                    {
-                        
-                        groupItems.AddSimple().Editor(e => e.CheckBox()
-                            .ID("prefix-active")
-                            .OnValueChanged("prefixActiveChanged")
-                            .Value(false)
-                        ).Label(l => l.Text("Prefix"));
-                        groupItems.AddSimple().Editor(e => e.RadioGroup()
-                            .DataSource(new[]
-                            {
-                                new { text = "Kod", value = "K"},
-                                new { text = "Nazwa", value = "N"},
-                                new { text = "Kod-Nazwa", value = "KN"}
-                            })
-                            .DisplayExpr("text")
-                            .ID("prefix-value")
-                            .Layout(Orientation.Horizontal)
-                            .OnValueChanged("regeneratePreview")
-                            .Value("K")
-                            .ValueExpr("value")
-                        );
-
-                        groupItems.AddSimple()
-                        .Editor(e => e.CheckBox()
-                            .ID("postfix-active")
-                            .OnValueChanged("postfixActiveChanged")
-                            .Value(false)
-                        )
-                        .Label(l => l.Text("Postfix"));
-                        groupItems.AddSimple().Editor(e => e.RadioGroup()
-                            .DataSource(new[]
-                            {
-                                new { text = "Kod", value = "K"},
-                                new { text = "Nazwa", value = "N"},
-                                new { text = "Kod-Nazwa", value = "KN"}
-                            })
-                            .DisplayExpr("text")
-                            .ID("postfix-value")
-                            .Layout(Orientation.Horizontal)
-                            .OnValueChanged("regeneratePreview")
-                            .Value("K")
-                            .ValueExpr("value")
-                        );
-
-                        groupItems.AddSimple().ValidationRules(vr => vr.AddRequired().Message("Aktywuj przynajmniej jedną z opcji: Prefix, Ścieżka, Postfix"))
-                            .Editor(e => e.TextBox().ID("preview").ReadOnly(true))
-                            .Label(l => l.Text("Podgląd"));
-    });*@
-                
-                }))
+                items.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().ID("id")).CssClass("hidden-input");
+            }))
             .Popup(p => p
                 .Title("Dane słownika")
                 .ShowTitle(true)
@@ -147,6 +94,7 @@
         .FocusStateEnabled(true)
         .HoverStateEnabled(true)
         .OnDisposing("onDisposing")
+        .OnEditorPreparing("onEditorPreparing")
         .OnEditingStart("onEditingStart")
         .OnInitNewRow("onInitNewRow")
         .OnRowInserted("onRowInserted")
