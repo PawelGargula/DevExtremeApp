@@ -26,26 +26,13 @@ namespace MvcMovie.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
-            var listOfJOR = new List<int>();
-            for (int i = 70_000; i < 100_000; i++)
-            {
-                listOfJOR.Add(i);
-            }
-
-            var listOfLOK = new List<int>();
-            for (int i = 70_000; i < 79_000; i++)
-            {
-                listOfLOK.Add(i);
-            }
-
-            var listOfGW = new List<int>();
-            for (int i = 70_000; i < 72_000; i++)
-            {
-                listOfGW.Add(i);
-            }
-
             var movie = _context.Movie
-                .Where(d => listOfJOR.Contains(d.Id) && listOfLOK.Contains(d.Id) && listOfGW.Contains(d.Id))
+                .Join(
+                    _context.Dictionary,
+                    m => new { Id1 = m.Id, Id2 = m.Id, Id3 = m.Id },
+                    d => new { Id1 = d.Id, Id2 = d.Id, Id3 = d.Id },
+                    (m, d) => m
+                )
                 .Select(i => new {
                     i.Id,
                     i.Title,
