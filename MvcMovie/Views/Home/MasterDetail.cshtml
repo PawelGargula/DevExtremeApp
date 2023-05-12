@@ -3,6 +3,7 @@
 }
 
 @(Html.DevExtreme().DataGrid<Movie>()
+    .ColumnWidth(300)
     .Columns(columns =>
     {
         columns.AddFor(m => m.Id);

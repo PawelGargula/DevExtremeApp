@@ -37,7 +37,14 @@
                     );
             })
             .OnContentReady("focusFirstNameInput")
-        )
+    )
+    @(Html.DevExtreme().FileUploader()
+        .Name("Photo")
+        .SelectButtonText("Select photo")
+        .LabelText("")
+        .Accept("image/*")
+        .UploadMode(FileUploadMode.UseForm)
+    )
 }
 
 <script>

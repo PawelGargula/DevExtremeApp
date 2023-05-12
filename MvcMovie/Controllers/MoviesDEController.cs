@@ -26,14 +26,34 @@ namespace MvcMovie.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
-            var movie = _context.Movie.Select(i => new {
-                i.Id,
-                i.Title,
-                i.ReleaseDate,
-                i.Genre,
-                i.Price,
-                i.Rating
-            });
+            var listOfJOR = new List<int>();
+            for (int i = 70_000; i < 100_000; i++)
+            {
+                listOfJOR.Add(i);
+            }
+
+            var listOfLOK = new List<int>();
+            for (int i = 70_000; i < 79_000; i++)
+            {
+                listOfLOK.Add(i);
+            }
+
+            var listOfGW = new List<int>();
+            for (int i = 70_000; i < 72_000; i++)
+            {
+                listOfGW.Add(i);
+            }
+
+            var movie = _context.Movie
+                .Where(d => listOfJOR.Contains(d.Id) && listOfLOK.Contains(d.Id) && listOfGW.Contains(d.Id))
+                .Select(i => new {
+                    i.Id,
+                    i.Title,
+                    i.ReleaseDate,
+                    i.Genre,
+                    i.Price,
+                    i.Rating
+                });
 
             // If underlying data is a large SQL table, specify PrimaryKey and PaginateViaPrimaryKey.
             // This can make SQL execution plans more efficient.

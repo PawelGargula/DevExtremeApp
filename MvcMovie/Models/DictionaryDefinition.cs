@@ -5,7 +5,7 @@ namespace MvcMovie.Models
 {
     public class DictionaryDefinition
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         [Display(Name = "Kod")]
         public string? Code { get; set; }
         [Display(Name = "Nazwa"), Required(ErrorMessage = "Nazwa jest wymagana")]
