@@ -2,7 +2,7 @@
     ViewData["Title"] = "Master Detail";
 }
 
-@(Html.DevExtreme().DataGrid<Movie>()
+@(Html.DevExtreme().DataGrid<MovieDTO>()
     .ColumnWidth(300)
     .Columns(columns =>
     {
@@ -12,12 +12,16 @@
         columns.AddFor(m => m.Genre);
         columns.AddFor(m => m.Price);
         columns.AddFor(m => m.Rating);
+        columns.AddFor(m => m.LocalizationName);
+        columns.AddFor(m => m.OrganizationName);
+        columns.AddFor(m => m.GroupName);
     })
     .DataSource(ds => ds.Mvc()
         .Controller("MoviesDE")
         .Key("Id")
         .LoadAction("Get"))
     .FilterRow(fr => fr.Visible(true))
+    .HeaderFilter(f => f.Visible(true).AllowSearch(true))
     .MasterDetail(md => md
         .Enabled(true)
         .Template(@<text>

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MvcMovie.Data;
 using MvcMovie.Models;
+using MvcMovie.Migrations;
 
 namespace MvcMovie.Controllers
 {
@@ -29,18 +30,79 @@ namespace MvcMovie.Controllers
             var movie = _context.Movie
                 .Join(
                     _context.Dictionary,
-                    m => new { Id1 = m.Id, Id2 = m.Id, Id3 = m.Id },
-                    d => new { Id1 = d.Id, Id2 = d.Id, Id3 = d.Id },
+                    m => m.LokId ?? 12,
+                    d => d.Id,
                     (m, d) => m
                 )
-                .Select(i => new {
-                    i.Id,
-                    i.Title,
-                    i.ReleaseDate,
-                    i.Genre,
-                    i.Price,
-                    i.Rating
-                });
+                .Join(
+                    _context.Dictionary,
+                    m => m.JorId ?? 12,
+                    d => d.Id,
+                    (m, d) => m
+                )
+                .Join(
+                    _context.Dictionary,
+                    m => m.GwId ?? 12,
+                    d => d.Id,
+                    (m, d) => m
+                );
+
+            var query = from m in movie
+                        join dict in _context.Dictionary on m.LokId equals dict.Id into dictJoin
+                        from dict in dictJoin.DefaultIfEmpty()
+                        select new
+                        {
+                            m.Id,
+                            m.Title,
+                            m.ReleaseDate,
+                            m.Genre,
+                            m.Price,
+                            m.Rating,
+                            m.LokId,
+                            m.JorId,
+                            m.GwId,
+                            LocalizationName = dict.Name ?? "",
+                            OrganizationName = "",
+                            GroupName = ""
+                        };
+
+            query = from m in query
+                    join dict in _context.Dictionary on m.JorId equals dict.Id into dictJoin
+                    from dict in dictJoin.DefaultIfEmpty()
+                    select new
+                    {
+                        m.Id,
+                        m.Title,
+                        m.ReleaseDate,
+                        m.Genre,
+                        m.Price,
+                        m.Rating,
+                        m.LokId,
+                        m.JorId,
+                        m.GwId,
+                        m.LocalizationName,
+                        OrganizationName = dict.Name ?? "",
+                        GroupName = ""
+                    };
+
+            query = from m in query
+                    join dict in _context.Dictionary on m.GwId equals dict.Id into dictJoin
+                    from dict in dictJoin.DefaultIfEmpty()
+                    select new
+                    {
+                        m.Id,
+                        m.Title,
+                        m.ReleaseDate,
+                        m.Genre,
+                        m.Price,
+                        m.Rating,
+                        m.LokId,
+                        m.JorId,
+                        m.GwId,
+                        m.LocalizationName,
+                        m.OrganizationName,
+                        GroupName = dict.Name ?? ""
+                    };
 
             // If underlying data is a large SQL table, specify PrimaryKey and PaginateViaPrimaryKey.
             // This can make SQL execution plans more efficient.
@@ -48,7 +110,7 @@ namespace MvcMovie.Controllers
             loadOptions.PrimaryKey = new[] { "Id" };
             loadOptions.PaginateViaPrimaryKey = true;
 
-            return Json(await DataSourceLoader.LoadAsync(movie, loadOptions));
+            return Json(await DataSourceLoader.LoadAsync(query, loadOptions));
         }
 
         //[HttpPost]

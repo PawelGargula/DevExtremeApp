@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MvcMovie.Models
 {
-    public class Movie
+    public class MovieDTO
     {
         public int Id { get; set; }
 
@@ -21,8 +21,8 @@ namespace MvcMovie.Models
 
         [RegularExpression(@"^[A-Z]+[a-zA-Z0-9""'\s-]*$"), StringLength(5), Required]
         public string? Rating { get; set; }
-        public int? LokId { get; set; }
-        public int? JorId { get; set; }
-        public int? GwId { get; set; }
+        public string? LocalizationName { get; set; }
+        public string? OrganizationName { get; set; }
+        public string? GroupName { get; set; }
     }
 }
