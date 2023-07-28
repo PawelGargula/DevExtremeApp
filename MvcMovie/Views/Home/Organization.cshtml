@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Organizations";
+}
+
+@(Html.DevExtreme().DataGrid<Organization>()
+    .Columns(columns =>
+    {
+        columns.AddFor(m => m.Shared);
+        columns.AddFor(m => m.Id);
+        columns.AddFor(m => m.Code);
+        columns.AddFor(m => m.Name);
+    })
+    .DataSource(ds => ds.Mvc()
+        .Controller("Organization")
+        .Key("Id")
+        .LoadAction("Get")
+    )
+    .Selection(s => s.Mode(SelectionMode.Multiple))
+    .SelectedRowKeys(new int[] { 2 })
+    .OnSelectionChanged("onSelectionChanged")
+)
+
+<script>
+    function onSelectionChanged(e) {
+        const parentOrganization = 2;
+        if (e.currentDeselectedRowKeys.includes(parentOrganization)) {
+            e.component.selectRows([...e.selectedRowKeys, parentOrganization])
+        }
+    }
+</script>

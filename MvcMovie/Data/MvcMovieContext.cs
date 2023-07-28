@@ -19,5 +19,6 @@ namespace MvcMovie.Data
         public DbSet<MvcMovie.Models.Dictionary> Dictionary { get; set; } = default!;
         public DbSet<MvcMovie.Models.Person> Person { get; set; } = default!;
         public DbSet<MvcMovie.Models.DictionaryDefinition> DictionaryDefinition { get; set; } = default!;
+        public DbSet<MvcMovie.Models.Organization> Organization { get; set; } = default!;
     }
 }
