@@ -5,7 +5,6 @@
 @(Html.DevExtreme().DataGrid<Organization>()
     .Columns(columns =>
     {
-        columns.AddFor(m => m.Shared);
         columns.AddFor(m => m.Id);
         columns.AddFor(m => m.Code);
         columns.AddFor(m => m.Name);
