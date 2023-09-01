@@ -1,0 +1,149 @@
+﻿@{
+    ViewData["Title"] = "Import assets from excel";
+}
+
+<style>
+    button {
+        display: block;
+        font-size: 24px;
+        margin-top: 10px;
+    }
+
+    .not-display {
+        display: none;
+    }
+
+    div.import-progress {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    progress[value] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border: none;
+
+        display: block;
+        margin: 0 auto;
+        width: 100%;
+        height: 12px;
+    }
+
+    progress[value]::-webkit-progress-bar {
+        background-color: lightgray;
+        border-radius: 2px;
+    }
+
+    progress[value]::-webkit-progress-value {
+        background-color: #009ca3;
+        border-radius: 2px;
+    }
+
+    progress[value]::-moz-progress-bar {
+        background-color: #009ca3;
+        border-radius: 2px;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+
+<h1>Import assets' data from Excel file</h1>
+<label for="excel">Choose Excel file</label>
+<input type="file" accept='.xlsx, .xls' name="excel" id="excel" />
+<button class="import-assets not-display">Import assets</button>
+<div class="import-progress not-display">
+    <progress aria-label='simulation progress'></progress>
+    <p class="imported-assets-info"></p>
+</div>
+
+
+<script>
+    let parsedData;
+
+    const readExcelInput = document.querySelector("input#excel");
+    readExcelInput.addEventListener("change", handleFileUpload);
+
+    const importProgress = document.querySelector("div.import-progress");
+
+    const importAssetsButton = document.querySelector("button.import-assets");
+    importAssetsButton.addEventListener("click", async () => {
+        importProgress.classList.remove("not-display");
+        
+        const progress = document.querySelector("progress");
+        progress.setAttribute("max", parsedData.length - 1);
+        const importedAssetsInfo = document.querySelector("p.imported-assets-info");
+        
+        readExcelInput.disabled = true;
+        importAssetsButton.disabled = true;
+        for (let i = 0; i < parsedData.length; i++) {
+            await delay(1);
+            progress.setAttribute("value", i);
+            importedAssetsInfo.textContent = `Imported ${i + 1} of ${parsedData.length} assets`
+        }
+        DevExpress.ui.notify("Success, all assets imported", "success", 2000);
+        readExcelInput.disabled = false;
+        importAssetsButton.disabled = false;
+    });
+
+    function handleFileUpload(e) {
+        if (e.target.files[0] === undefined) return;
+
+        DevExpress.ui.notify("Reading file, wait for succeed message", "info", 500);
+        importAssetsButton.disabled = true;
+        importProgress.classList.add("not-display");
+
+        const reader = new FileReader()
+        reader.readAsBinaryString(e.target.files[0])
+        reader.onload = (e) => {
+            const data = e.target.result;
+            const workbook = XLSX.read(data, { type: "binary" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            parsedData = XLSX.utils.sheet_to_json(sheet, { raw: true });
+            parsedData.forEach(asset => {
+                if (!asset.hasOwnProperty("UnitOfMeasure")) {
+                    asset.UnitOfMeasure = "";
+                }
+                if (!asset.hasOwnProperty("Quantity")) {
+                    asset.Quantity = 0;
+                }
+                if (!asset.hasOwnProperty("Location")) {
+                    asset.Location = "";
+                }
+                if (!asset.hasOwnProperty("ReceivingPersonName")) {
+                    asset.ReceivingPersonName = "";
+                }
+                if (!asset.hasOwnProperty("ReceivingPersonLastName")) {
+                    asset.ReceivingPersonLastName = "";
+                }
+                if (!asset.hasOwnProperty("RecivingPersonPersonalNumber")) {
+                    asset.RecivingPersonPersonalNumber = "";
+                }
+                if (!asset.hasOwnProperty("MPK")) {
+                    asset.MPK = "";
+                }
+                if (!asset.hasOwnProperty("DeactivationDate")) {
+                    asset.DeactivationDate = "";
+                }
+                if (!asset.hasOwnProperty("Street")) {
+                    asset.Street = "";
+                }
+                asset.InventoryMode = asset.InventoryMode === "true"
+                asset.IsDeleted = asset.IsDeleted=== "true"
+            });
+            DevExpress.ui.notify("Success, file readed, assets ready to import", "success", 2000);
+            importAssetsButton.classList.remove("not-display");
+            importAssetsButton.disabled = false;
+
+            console.log(parsedData)
+        }
+    }
+
+    function delay(milliseconds) {
+        return new Promise(resolve => {
+            setTimeout(resolve, milliseconds);
+        });
+    }
+</script>
