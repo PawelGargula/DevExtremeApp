@@ -1,18 +1,32 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var list = new List<Item>()
+    {
+        new Item("n", "Nazwa"),
+        new Item("ne", "Nazwa - etykieta"),
+        new Item("ni", "Nr inwentarzowy"),
+        new Item("dp", "Data przyjęcia"),
+        new Item("pt", "Pole tekstowe"),
+    };
 }
 
 <h1>Home</h1>
 
-@(Html.DevExtreme().Switch()
-    .Value(false)
-    .SwitchedOnText("Posiadam")
-    .SwitchedOffText("Nie posiadam")
-    .Width(120)
+@(Html.DevExtreme().SelectBox()
+    .DataSource(list)
+    .ValueExpr("Code")
+    .DisplayExpr("Name")
+    .Value("ne")
 )
 
 @*@(Html.DevExtreme().TagBox()
     .Items(Model.Items)
     .ShowSelectionControls(true)
     .ApplyValueMode(EditorApplyValueMode.UseButtons)
+)*@
+@*@(Html.DevExtreme().Switch()
+    .Value(false)
+    .SwitchedOnText("Posiadam")
+    .SwitchedOffText("Nie posiadam")
+    .Width(120)
 )*@
