@@ -58,7 +58,7 @@
 <input type="file" accept='.xlsx, .xls' name="excel" id="excel" />
 <button class="import-assets not-display">Import assets</button>
 <div class="import-progress not-display">
-    <progress aria-label='simulation progress'></progress>
+    <progress aria-label='simulation progress' value="0"></progress>
     <p class="imported-assets-info"></p>
 </div>
 <p class="error"></p>
@@ -74,39 +74,9 @@
 
     const importAssetsButton = document.querySelector("button.import-assets");
     const errorElement = document.querySelector("p.error");
-    importAssetsButton.addEventListener("click", async () => {
-        try {
-            importProgress.classList.remove("not-display");
-            errorElement.innerHTML = "";
-
-            const progress = document.querySelector("progress");
-            progress.setAttribute("max", parsedData.length - 1);
-            const importedAssetsInfo = document.querySelector("p.imported-assets-info");
-
-            readExcelInput.disabled = true;
-            importAssetsButton.disabled = true;
-            for (let i = 0; i < parsedData.length; i++) {
-                const response = await delay(1, i);
-                if (!response?.ok && response !== undefined) {
-                    let text = await response?.text();
-                    let shortText = text.substring(0, 100);
-                    throw new Error(`on asset of id ${parsedData[i].Id} - ${shortText}...`);
-                }
-                progress.setAttribute("value", i);
-                importedAssetsInfo.textContent = `Imported ${i + 1} of ${parsedData.length} assets`
-            }
-            DevExpress.ui.notify("Success, all assets imported", "success", 2000);
-        } catch (error) {
-            const createParagraph = (text) => {
-                const paragraph = document.createElement("p");
-                paragraph.textContent = text;
-                return paragraph;
-            }
-            errorElement.appendChild(createParagraph(`There was an error ${error.message}`));
-            errorElement.appendChild(createParagraph("Try to correct data and import again or contact with programmer."));
-        } finally {
-            readExcelInput.disabled = false;
-            importAssetsButton.disabled = false;
+    importAssetsButton.addEventListener("click", () => {
+        if (window.confirm("Are you sure you want to import those assets?")) {
+            importAssets();
         }
     });
 
@@ -164,8 +134,44 @@
         }
     }
 
-    function delay(milliseconds, i) {
-        if (i === 100) throw new Error("Some problem");
+    async function importAssets() {
+        try {
+            importProgress.classList.remove("not-display");
+            errorElement.innerHTML = "";
+
+            const progress = document.querySelector("progress");
+            progress.setAttribute("max", parsedData.length);
+            const importedAssetsInfo = document.querySelector("p.imported-assets-info");
+
+            readExcelInput.disabled = true;
+            importAssetsButton.disabled = true;
+            for (let i = 0; i < parsedData.length; i++) {
+                const response = await delay(1);
+                if (!response?.ok && response !== undefined) {
+                    let text = await response?.text();
+                    let shortText = text.substring(0, 100);
+                    throw new Error(`On asset of id ${parsedData[i].Id} - ${shortText}...`);
+                }
+                const value = i + 1;
+                progress.setAttribute("value", value);
+                importedAssetsInfo.textContent = `Imported ${value} of ${parsedData.length} assets`
+            }
+            DevExpress.ui.notify("Success, all assets imported", "success", 2000);
+        } catch (error) {
+            const createParagraph = (text) => {
+                const paragraph = document.createElement("p");
+                paragraph.textContent = text;
+                return paragraph;
+            }
+            errorElement.appendChild(createParagraph(`There was an error: ${error.message}`));
+            errorElement.appendChild(createParagraph("Try to correct data and import again or contact with programmer."));
+        } finally {
+            readExcelInput.disabled = false;
+            importAssetsButton.disabled = false;
+        }
+    }
+
+    function delay(milliseconds) {
         return new Promise(resolve => {
             setTimeout(resolve, milliseconds);
         });
