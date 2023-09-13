@@ -95,6 +95,13 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ImportAssetsFromExcel">Import assets</a>
                         </li>
+                        <li class="nav-item">
+                            <form id="show-object">
+                                <label for="object-information">Identyfikator obiektu</label>
+                                <input type="text" id="object-information" name="object-information">
+                                <button type="submit">Podejrzyj</button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -115,5 +122,23 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const showObjectForm = document.querySelector("form#show-object");
+        showObjectForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(showObjectForm);
+            const objectInformationValue = formData.get("object-information");
+
+            const response = await fetch(`@Url.Action("GetMovieIdByTitle","Movies")?title=${objectInformationValue}`);
+            const movieId = await response.json();
+
+            if (movieId) {
+                window.location.href = `${window.location.origin}@Url.Action("Details","Movies")/?id=${movieId}`;
+            } else {
+                alert("Nie znaleziono obiektu");
+            }
+        });
+    </script>
 </body>
 </html>

@@ -67,12 +67,12 @@
                 items.AddSimpleFor(m => m.Code).ColSpan(1).ValidationRules(vr =>
                 {
                     vr.AddRequired().Message("Kod jest wymagany");
-                    vr.AddAsync().ValidationCallback("isCodeUnique").Message("Kod jest już wykorzystywany");
+                    @*vr.AddAsync().ValidationCallback("isCodeUnique").Message("Kod jest już wykorzystywany");*@
                 });
 
                 items.AddSimpleFor(m => m.Name).ColSpan(2);
 
-                items.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().ID("id")).CssClass("hidden-input");
+                @*items.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().ID("id")).CssClass("hidden-input");*@
             }))
             .Popup(p => p
                 .Title("Dane słownika")

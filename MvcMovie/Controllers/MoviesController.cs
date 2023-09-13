@@ -203,5 +203,18 @@ namespace MvcMovie.Controllers
         {
           return (_context.Movie?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        public async Task<IActionResult> GetMovieIdByTitle(string title)
+        {
+            var movie = await _context.Movie.FirstOrDefaultAsync(m => m.Title == title);
+            if (movie != null)
+            {
+                return Ok(movie.Id);
+            }
+            else
+            {
+                return Ok(0);
+            }
+        }
     }
 }
