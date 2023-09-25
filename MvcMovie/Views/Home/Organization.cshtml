@@ -8,15 +8,26 @@
         columns.AddFor(m => m.Id);
         columns.AddFor(m => m.Code);
         columns.AddFor(m => m.Name);
+        columns.AddFor(m => m.Shared);
     })
     .DataSource(ds => ds.Mvc()
         .Controller("Organization")
         .Key("Id")
         .LoadAction("Get")
+        .InsertAction("Post")
+        .UpdateAction("Put")
+        .DeleteAction("Delete")
+    )
+    .Editing(e => e
+        .Mode(GridEditMode.Row)
+        .AllowUpdating(true)
+        .AllowAdding(true)
+        .AllowDeleting(true)
     )
     .Selection(s => s.Mode(SelectionMode.Multiple))
     .SelectedRowKeys(new int[] { 2 })
     .OnSelectionChanged("onSelectionChanged")
+    .OnRowUpdating("onRowUpdating")
 )
 
 <script>
@@ -24,6 +35,17 @@
         const parentOrganization = 2;
         if (e.currentDeselectedRowKeys.includes(parentOrganization)) {
             e.component.selectRows([...e.selectedRowKeys, parentOrganization])
+        }
+    }
+
+    function onRowUpdating(e) {
+        const isDeactivating = e.newData.Shared === false;
+
+        if (isDeactivating && !window.confirm("Czy na pewno chcesz dezaktywować?")) {
+            e.cancel = true;        
+            e.component.cancelEditData();
+        } else {
+            e.component.saveEditData();
         }
     }
 </script>
