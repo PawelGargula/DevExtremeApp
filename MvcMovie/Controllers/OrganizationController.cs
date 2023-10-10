@@ -15,7 +15,7 @@ using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("[controller]/[action]")]
     public class OrganizationController : Controller
     {
             private readonly MvcMovieContext _context;

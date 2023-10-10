@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MvcMovie.Data;
 using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
+    [Route("[controller]/[action]")]
     public class PersonController : Controller
     {
         private readonly MvcMovieContext _context;
@@ -36,6 +39,20 @@ namespace MvcMovie.Controllers
             }
 
             return Json(true);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPersonBySearchingText(string searchingText)
+        {
+            var person = await _context.Person.FirstOrDefaultAsync(o => o.Email == searchingText);
+            if (person == null)
+            {
+                return NotFound();
+            } 
+            else
+            {
+                return Json(person);
+            }
         }
     }
 }
