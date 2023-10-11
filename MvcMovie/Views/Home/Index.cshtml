@@ -30,36 +30,3 @@
     .SwitchedOffText("Nie posiadam")
     .Width(120)
 )*@
-
-@(Html.DevExtreme().DataGrid<Organization>()
-    .Columns(columns =>
-    {
-        columns.AddFor(m => m.Id);
-        columns.AddFor(m => m.Code);
-        columns.AddFor(m => m.Name);
-    })
-    .DataSource(new List<Organization>())
-    .Editing(e => e
-        .Mode(GridEditMode.Row)
-        .AllowUpdating(false)
-        .AllowAdding(false)
-        .AllowDeleting(true)
-    )
-    .ID("gridContainer")
-)
-
-<button id="add-first">Add 1</button>
-
-<script>
-    const getDataGrid = () => $("#gridContainer").dxDataGrid().dxDataGrid("instance");
-    const getDataSource = () => getDataGrid().getDataSource();
-    const button = document.querySelector("#add-first");
-    button.addEventListener("click", () => {
-        console.log("Clicked");
-        const dataSource = getDataSource();
-        // Jeśli już nie ma takiego samego obiektu w gridzie insert
-        dataSource.store().insert({ Id: 1, Code: "KOMP", Name: "Komputer" }).then(function() {
-            dataSource.reload();
-        });
-    })
-</script>

@@ -44,7 +44,21 @@ namespace MvcMovie.Controllers
                 return Json(await DataSourceLoader.LoadAsync(organizations, loadOptions));
             }
 
-            [HttpPut]
+            [HttpGet]
+            public async Task<IActionResult> GetOrganizationBySearchingText(string searchingText)
+            {
+                var organization = await _context.Organization.FirstOrDefaultAsync(o => o.Code == searchingText);
+                if (organization == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Json(organization);
+                }
+            }
+
+        [HttpPut]
             public async Task<IActionResult> Put(int key, string values)
             {
                 var model = await _context.Organization.FirstOrDefaultAsync(item => item.Id == key);

@@ -17,10 +17,20 @@
         display: inline-block;
     }
 
-    .person-validation {
+    form {
+        position: relative;
+        padding-top: 20px;
+    }
+
+    input.invalid + span.error::after {
+        content: "Nie znaleziono";
         color: red;
         font-size: 12px;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
+
 </style>
 
 <h1>Wydanie</h1>
@@ -28,14 +38,9 @@
 <div class="form-section">
     <h2>Wprowadź osobę odbierającą</h2>
     <form id="person-form">
-        <p class="person-validation"></p>
-        @(Html.DevExtreme().TextBox()
-            .Label("Identyfikator osoby")
-            .LabelMode(EditorLabelMode.Floating)
-            .Name("person-searching-text")
-            .Width(300)
-        )
-        <button class="inline" type="submit" id="add-person">Dodaj</button>
+        <input id="person-searching-text" name="person-searching-text" aria-label="Identyfikator osoby" placeholder="Identyfikator osoby" />
+        <span class="error"></span>
+        <button type="submit" id="add-person">Dodaj</button>
     </form>
     <p class="person-name">*** ********</p>
     <input type="hidden" id="person-id"/>
@@ -43,13 +48,10 @@
 
 <div class="form-section">
     <h2>Wprowadź obiekty</h2>
-    <form id="assets-form">
-        @(Html.DevExtreme().TextBox()
-            .Label("Identyfikator obiektu")
-            .LabelMode(EditorLabelMode.Floating)
-            .Width(300)
-        )
-        <button class="inline" type="submit">+ Dodaj</button>
+    <form id="object-form">
+        <input id="object-searching-text" name="object-searching-text" aria-label="Identyfikator obiektu" placeholder="Identyfikator obiektu" />
+        <span class="error"></span>
+        <button class="inline" type="submit">Dodaj</button>
     </form>
     @(Html.DevExtreme().DataGrid<Organization>()
         .Columns(columns =>
@@ -58,7 +60,7 @@
             columns.AddFor(m => m.Code);
             columns.AddFor(m => m.Name);
         })
-        .DataSource(new List<Organization>())
+        .DataSource(ds => ds.Array().Key("Id"))
         .Editing(e => e
             .Mode(GridEditMode.Row)
             .AllowUpdating(false)
@@ -77,6 +79,13 @@
             this.assetIds = assetIds
         }
     }
+    
+    const personSearchingTextDOM = document.querySelector("#person-searching-text");
+    personSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
+    personSearchingTextDOM.focus();
+
+    const objectSearchingTextDOM = document.querySelector("#object-searching-text");
+    objectSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
 
     const personForm = document.querySelector("form#person-form");
     personForm.addEventListener("submit", async (e) => {
@@ -96,9 +105,31 @@
 
             const addPersonButton = document.querySelector("button#add-person");
             addPersonButton.textContent = "Zmień";
+            objectSearchingTextDOM.focus();
         } else {
-            const personValidationDOM = document.querySelector(".person-validation");
-            personValidationDOM.textContent = "Nie znaleziono osoby";
+            personSearchingTextDOM.classList.add("invalid");
+        }
+    });
+
+    const objectForm = document.querySelector("form#object-form");
+    objectForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const objectFormData = new FormData(objectForm);
+        const objectSearchingText = objectFormData.get("object-searching-text");
+        const response = await fetch("@Url.Action("GetOrganizationBySearchingText", "Organization")" + `?searchingText=${objectSearchingText}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            const getDataGrid = () => $("#assets-grid").dxDataGrid().dxDataGrid("instance");
+            const getDataSource = () => getDataGrid().getDataSource();
+            const dataSource = getDataSource();
+            dataSource.store().insert(data).then(function() {
+                dataSource.reload();
+            });
+            objectSearchingTextDOM.value = "";
+            objectSearchingTextDOM.focus();
+        } else {
+            objectSearchingTextDOM.classList.add("invalid");
         }
     });
     
