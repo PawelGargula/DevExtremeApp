@@ -252,7 +252,7 @@
                 const data = new RentModel(personIdInput.value, objectIds, time);
 
                 try {
-                    const response = await fetch("@Url.Action("Post", "ToolsHistories")", {
+                    const response = await fetch("@Url.Action("Post", "ToolsHistory")", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"

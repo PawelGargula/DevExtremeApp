@@ -16,11 +16,11 @@ using MvcMovie.Models;
 namespace MvcMovie.Controllers
 {
     [Route("[controller]/[action]")]
-    public class ToolsHistoriesController : Controller
+    public class ToolsHistoryController : Controller
     {
         private MvcMovieContext _context;
 
-        public ToolsHistoriesController(MvcMovieContext context) {
+        public ToolsHistoryController(MvcMovieContext context) {
             _context = context;
         }
 
@@ -43,18 +43,24 @@ namespace MvcMovie.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(string values) {
-            var model = new ToolsHistory();
-            var valuesDict = JsonConvert.DeserializeObject<IDictionary>(values);
-            PopulateModel(model, valuesDict);
+        public async Task<IActionResult> Post() {
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                string requestBody = await reader.ReadToEndAsync();
 
-            if(!TryValidateModel(model))
-                return BadRequest(GetFullErrorMessage(ModelState));
+                var model = new ToolsHistory();
+                var valuesDict = JsonConvert.DeserializeObject<IDictionary>(requestBody);
+                PopulateModel(model, valuesDict);
 
-            var result = _context.ToolsHistory.Add(model);
-            await _context.SaveChangesAsync();
+                if (!TryValidateModel(model))
+                    return BadRequest(GetFullErrorMessage(ModelState));
 
-            return Json(new { result.Entity.Id });
+                var result = _context.ToolsHistory.Add(model);
+                await _context.SaveChangesAsync();
+
+                return Json(new { result.Entity.Id });
+
+            }
         }
 
         [HttpPut]
