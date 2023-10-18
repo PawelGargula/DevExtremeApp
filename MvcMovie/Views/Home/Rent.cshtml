@@ -1,0 +1,246 @@
+﻿@{
+    ViewData["Title"] = "Wydanie";
+}
+
+<style>
+    .content-box {
+        border-radius: 8px;
+        display: flex;
+        gap: 40px;
+        padding: 20px;
+        width: 100%;
+    }
+
+    .enter {
+        flex: 1 0 fit-content;
+    }
+
+    .summary {
+        background-color: #f8f8ff;
+        padding-inline: 20px;
+        padding-bottom: 20px;
+        border-radius: 6px;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-block: 20px;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    .input-box {
+        display: inline-block;
+        position: relative;
+    }
+
+    input {
+        border: 1px solid lightgray;
+        border-radius: 3px;
+        padding: 3px 6px;
+    }
+
+    span.error {
+        display: none;
+    }
+
+    input.invalid {
+        border-color: red;
+    }
+
+    input.invalid + span.error {
+        bottom: -16px;
+        color: red;
+        display: inline;
+        font-size: 12px;
+        left: 0;
+        position: absolute;
+    }
+
+    button.add {
+        background-color: white;
+        border: 1px solid #3E5FDE;
+        border-radius: 50%;
+    }
+
+    button > i {
+        color: #3E5FDE;
+    }
+
+    span.title {
+        font-weight: bold;
+    }
+
+    div.inline-center {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    #rent-button {
+        font-size: 20px;
+        background-color: white;
+        border: 2px solid #3E5FDE;
+        border-radius: 20px;
+        color: #3E5FDE;
+        height: 40px;
+        padding: 2px 20px;
+    }
+
+    #rent-button:hover,
+    button.add:hover {
+        border-color: #1c44de;
+        color: #1c44de;
+    }
+</style>
+
+<div class="content-box">
+    <div class="enter">
+        <h2>Wprowadzanie</h2>
+        <form id="person-form">
+            <div class="input-box">
+                <input id="person-searching-text" name="person-searching-text" aria-label="Osoba odbierająca" placeholder="Osoba odbierająca" />
+                <span id="person-error" class="error"></span>
+            </div>
+            <button class="add" type="submit" id="add-person" aria-label="Add person">
+                <i class="dx-icon-add"></i>
+            </button>
+        </form>
+        <input type="hidden" id="person-id" />
+        <form id="object-form">
+            <div class="input-box">
+                <input id="object-searching-text" name="object-searching-text" aria-label="Identyfikator obiektu" placeholder="Identyfikator obiektu" />
+                <span id="object-error" class="error"></span>
+            </div>
+            <button class="add" type="submit" aria-label="Add object">
+                <i class="dx-icon-add"></i>
+            </button>
+        </form>
+    </div>
+    <div class="summary">
+        <h2>Podsumowanie</h2>
+        <div>
+            <span class="title">Do:</span>
+            <span id="summary-person"></span>
+        </div>
+        <span class="title">Obiekty:</span>
+        @(Html.DevExtreme().DataGrid<Organization>()
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.Id);
+                columns.AddFor(m => m.Code);
+                columns.AddFor(m => m.Name);
+                columns.AddFor(m => m.Shared);
+            })
+            .DataSource(ds => ds.Array().Key("Id"))
+            .Editing(e => e
+                .Mode(GridEditMode.Row)
+                .AllowUpdating(false)
+                .AllowAdding(false)
+                .AllowDeleting(true)
+                .UseIcons(true)
+                .Texts(t => t.ConfirmDeleteMessage(""))
+            )
+            .ID("assets-grid")
+        )
+        <div class="inline-center">
+            <button id="rent-button">Wydaj</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    class RentModel {
+        constructor(personId, objects) {
+            this.personId = personId,
+            this.objects = objects
+        }
+    }
+    
+    const personSearchingTextDOM = document.querySelector("#person-searching-text");
+    personSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
+    personSearchingTextDOM.focus();
+
+    const objectSearchingTextDOM = document.querySelector("#object-searching-text");
+    objectSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
+
+    const personIdInput = document.querySelector("input#person-id");
+    const personErrorDOM = document.querySelector("#person-error");
+    const objectErrorDOM = document.querySelector("#object-error");
+
+    const getDataGrid = () => $("#assets-grid").dxDataGrid().dxDataGrid("instance");
+    const getDataSource = () => getDataGrid().getDataSource();
+
+    const personForm = document.querySelector("form#person-form");
+    personForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const personFormData = new FormData(personForm);
+        const personSearchingText = personFormData.get("person-searching-text");
+        if (personSearchingText === "") return;
+        const response = await fetch("@Url.Action("GetPersonBySearchingText", "Person")" + `?searchingText=${personSearchingText}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            personIdInput.value = data.Id;
+
+            const summaryPersonDOM = document.querySelector("#summary-person");
+            summaryPersonDOM.textContent = data.FirstName;
+
+            objectSearchingTextDOM.focus();
+        } else {
+            personSearchingTextDOM.classList.add("invalid");
+            personErrorDOM.textContent = "Niepoprawne id osoby";
+        }
+    });
+
+    const objectForm = document.querySelector("form#object-form");
+    objectForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const objectFormData = new FormData(objectForm);
+        const objectSearchingText = objectFormData.get("object-searching-text");
+        if (objectSearchingText === "") return;
+        const response = await fetch("@Url.Action("GetOrganizationBySearchingText", "Organization")" + `?searchingText=${objectSearchingText}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            const dataSource = getDataSource();
+            dataSource.store().insert(data).then(function() {
+                dataSource.reload();
+                dataSource.store().load().done((items) => {
+                    const summaryObjectsDOM = document.querySelector("#summary-objects");
+                    summaryObjectsDOM.textContent = `Obiekty: ${items.map(i => i.Name).join(", ")}`;
+                })
+
+            });
+
+            objectSearchingTextDOM.value = "";
+            objectSearchingTextDOM.focus();
+        } else {
+            objectSearchingTextDOM.classList.add("invalid");
+            objectErrorDOM.textContent = "Niepoprawne id obiektu";
+        }
+    });
+
+    const rentButton = document.querySelector("#rent-button");
+    rentButton.addEventListener("click", () => {
+        const dataSource = getDataSource();
+        dataSource.load().done((objects)=>{
+            if (!personIdInput.value) {
+                personSearchingTextDOM.classList.add("invalid");
+                personErrorDOM.textContent = "Wprowadź osobę";
+                personSearchingTextDOM.focus();
+            } else if (objects.length === 0) {
+                objectSearchingTextDOM.classList.add("invalid");
+                objectErrorDOM.textContent = "Wprowadź obiekt";
+                objectSearchingTextDOM.focus();
+            } else {
+                console.log(new RentModel(personIdInput.value, objects));
+            }
+        })
+    });
+    
+</script>

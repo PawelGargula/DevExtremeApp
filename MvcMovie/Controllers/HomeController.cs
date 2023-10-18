@@ -58,7 +58,7 @@ namespace MvcMovie.Controllers
             return View();
         }
 
-        public IActionResult Hire()
+        public IActionResult Rent()
         {
             return View();
         }
