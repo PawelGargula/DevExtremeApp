@@ -28,12 +28,17 @@
     }
 
     form {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
     .input-box {
         display: inline-block;
         position: relative;
+    }
+
+    label {
+        display: block;
+        font-size: 12px;
     }
 
     input {
@@ -101,7 +106,8 @@
         <h2>Wprowadzanie</h2>
         <form id="person-form">
             <div class="input-box">
-                <input id="person-searching-text" name="person-searching-text" aria-label="Osoba odbierająca" placeholder="Osoba odbierająca" />
+                <label>Osoba odbierająca</label>
+                <input id="person-searching-text" name="person-searching-text" aria-label="Identyfikator osoby" placeholder="Identyfikator osoby" />
                 <span id="person-error" class="error"></span>
             </div>
             <button class="add" type="submit" id="add-person" aria-label="Add person">
@@ -111,6 +117,7 @@
         <input type="hidden" id="person-id" />
         <form id="object-form">
             <div class="input-box">
+                <label>Obiekt</label>
                 <input id="object-searching-text" name="object-searching-text" aria-label="Identyfikator obiektu" placeholder="Identyfikator obiektu" />
                 <span id="object-error" class="error"></span>
             </div>
@@ -154,9 +161,10 @@
 
 <script>
     class RentModel {
-        constructor(personId, objects) {
+        constructor(personId, objectIds, rentDate) {
             this.personId = personId,
-            this.objects = objects
+            this.objectIds = objectIds,
+            this.rentDate = rentDate
         }
     }
     
@@ -193,7 +201,7 @@
             objectSearchingTextDOM.focus();
         } else {
             personSearchingTextDOM.classList.add("invalid");
-            personErrorDOM.textContent = "Niepoprawne id osoby";
+            personErrorDOM.textContent = "Niepoprawny identyfikator osoby";
         }
     });
 
@@ -221,14 +229,14 @@
             objectSearchingTextDOM.focus();
         } else {
             objectSearchingTextDOM.classList.add("invalid");
-            objectErrorDOM.textContent = "Niepoprawne id obiektu";
+            objectErrorDOM.textContent = "Niepoprawny identyfikator obiektu";
         }
     });
 
     const rentButton = document.querySelector("#rent-button");
     rentButton.addEventListener("click", () => {
         const dataSource = getDataSource();
-        dataSource.load().done((objects)=>{
+        dataSource.load().done(async (objects)=>{
             if (!personIdInput.value) {
                 personSearchingTextDOM.classList.add("invalid");
                 personErrorDOM.textContent = "Wprowadź osobę";
@@ -238,7 +246,30 @@
                 objectErrorDOM.textContent = "Wprowadź obiekt";
                 objectSearchingTextDOM.focus();
             } else {
-                console.log(new RentModel(personIdInput.value, objects));
+                const now = new Date();
+                const time = now.getTime();
+                const objectIds = objects.map(obj => obj.Id)
+                const data = new RentModel(personIdInput.value, objectIds, time);
+
+                try {
+                    const response = await fetch("@Url.Action("Post", "ToolsHistories")", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log(data);
+                    } else {
+                        const error = await response.text();
+                        throw new Error(error);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
             }
         })
     });
