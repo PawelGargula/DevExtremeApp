@@ -121,7 +121,7 @@
                 <input id="object-searching-text" name="object-searching-text" aria-label="Identyfikator obiektu" placeholder="Identyfikator obiektu" />
                 <span id="object-error" class="error"></span>
             </div>
-            <button class="add" type="submit" aria-label="Add object">
+            <button class="add" type="submit" id="add-object" aria-label="Add object">
                 <i class="dx-icon-add"></i>
             </button>
         </form>
@@ -171,9 +171,11 @@
     const personSearchingTextDOM = document.querySelector("#person-searching-text");
     personSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
     personSearchingTextDOM.focus();
+    const addPersonButton = document.querySelector("#add-person");
 
     const objectSearchingTextDOM = document.querySelector("#object-searching-text");
     objectSearchingTextDOM.addEventListener("input", (e) => e.target.classList.remove("invalid"));
+    const addObjectButton = document.querySelector("#add-object");
 
     const personIdInput = document.querySelector("input#person-id");
     const personErrorDOM = document.querySelector("#person-error");
@@ -188,6 +190,9 @@
         const personFormData = new FormData(personForm);
         const personSearchingText = personFormData.get("person-searching-text");
         if (personSearchingText === "") return;
+
+        personSearchingTextDOM.disabled = true;
+        addPersonButton.disabled = true;
         const response = await fetch("@Url.Action("GetPersonBySearchingText", "Person")" + `?searchingText=${personSearchingText}`);
         
         if (response.ok) {
@@ -199,9 +204,14 @@
             summaryPersonDOM.textContent = data.FirstName;
 
             objectSearchingTextDOM.focus();
+            personSearchingTextDOM.disabled = false;
+            addPersonButton.disabled = false;
         } else {
             personSearchingTextDOM.classList.add("invalid");
             personErrorDOM.textContent = "Niepoprawny identyfikator osoby";
+            personSearchingTextDOM.disabled = false;
+            addPersonButton.disabled = false;
+            personSearchingTextDOM.focus();
         }
     });
 
@@ -241,7 +251,7 @@
             } else {
                 const now = new Date();
                 const time = now.getTime();
-                const objectIds = objects.map(obj => obj.Id)
+                const objectIds = objects;
                 const data = new RentModel(personIdInput.value, objectIds, time);
 
                 const response = await fetch("@Url.Action("Post", "ToolsHistory")", {
