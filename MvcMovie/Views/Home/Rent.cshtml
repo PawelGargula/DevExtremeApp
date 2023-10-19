@@ -211,19 +211,12 @@
         const objectFormData = new FormData(objectForm);
         const objectSearchingText = objectFormData.get("object-searching-text");
         if (objectSearchingText === "") return;
+
         const response = await fetch("@Url.Action("GetOrganizationBySearchingText", "Organization")" + `?searchingText=${objectSearchingText}`);
-        
         if (response.ok) {
             const data = await response.json();
             const dataSource = getDataSource();
-            dataSource.store().insert(data).then(function() {
-                dataSource.reload();
-                dataSource.store().load().done((items) => {
-                    const summaryObjectsDOM = document.querySelector("#summary-objects");
-                    summaryObjectsDOM.textContent = `Obiekty: ${items.map(i => i.Name).join(", ")}`;
-                })
-
-            });
+            dataSource.store().push([{ type: "insert", data: data, index: 0 }]);
 
             objectSearchingTextDOM.value = "";
             objectSearchingTextDOM.focus();
@@ -251,23 +244,19 @@
                 const objectIds = objects.map(obj => obj.Id)
                 const data = new RentModel(personIdInput.value, objectIds, time);
 
-                try {
-                    const response = await fetch("@Url.Action("Post", "ToolsHistory")", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(data)
-                    });
+                const response = await fetch("@Url.Action("Post", "ToolsHistory")", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(data);
-                    } else {
-                        const error = await response.text();
-                        throw new Error(error);
-                    }
-                } catch (error) {
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                } else {
+                    const error = await response.text();
                     console.log(error);
                 }
             }
