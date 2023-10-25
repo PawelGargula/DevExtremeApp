@@ -132,7 +132,7 @@
             <span class="title">Do:</span>
             <span id="summary-person"></span>
         </div>
-        <span class="title">Obiekty:</span>
+        <span id="objects-counter" class="title">Obiekty:</span>
         @(Html.DevExtreme().DataGrid<Organization>()
             .Columns(columns =>
             {
@@ -151,6 +151,7 @@
                 .Texts(t => t.ConfirmDeleteMessage(""))
             )
             .ID("assets-grid")
+            .OnRowRemoved("onObjectsUpdate")
         )
         <div class="inline-center">
             <button id="rent-button">Wydaj</button>
@@ -227,9 +228,7 @@
             const data = await response.json();
             const dataSource = getDataSource();
             dataSource.store().push([{ type: "insert", data: data, index: 0 }]);
-
-            objectSearchingTextDOM.value = "";
-            objectSearchingTextDOM.focus();
+            onObjectsUpdate();
         } else {
             objectSearchingTextDOM.classList.add("invalid");
             objectErrorDOM.textContent = "Niepoprawny identyfikator obiektu";
@@ -272,5 +271,15 @@
             }
         })
     });
+
+    function onObjectsUpdate() {
+        const objectsCounterDOM = document.querySelector("#objects-counter");
+        const dataSource = getDataSource();
+        dataSource.load().done((objects) => {
+            objectsCounterDOM.textContent = objects.length ? `Obiekty: (${objects.length})` : "Obiekty:";
+        });
+        objectSearchingTextDOM.value = "";
+        objectSearchingTextDOM.focus();
+    }
     
 </script>
