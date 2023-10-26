@@ -27,27 +27,7 @@ namespace MvcMovie.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Get(DataSourceLoadOptions loadOptions) {
-            var movie = _context.Movie
-                .Join(
-                    _context.Dictionary,
-                    m => m.LokId ?? 12,
-                    d => d.Id,
-                    (m, d) => m
-                )
-                .Join(
-                    _context.Dictionary,
-                    m => m.JorId ?? 12,
-                    d => d.Id,
-                    (m, d) => m
-                )
-                .Join(
-                    _context.Dictionary,
-                    m => m.GwId ?? 12,
-                    d => d.Id,
-                    (m, d) => m
-                );
-
-            var query = from m in movie
+            var query = from m in _context.Movie
                         join dict in _context.Dictionary on m.LokId equals dict.Id into dictJoin
                         from dict in dictJoin.DefaultIfEmpty()
                         select new
